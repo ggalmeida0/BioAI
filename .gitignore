@@ -1,0 +1,33 @@
+# Service
+service/node_modules
+service/lambda
+service/dist
+
+# Infra
+infra/*.js
+!infra/jest.config.js
+infra/*.d.ts
+infra/node_modules
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+
+# UI
+ui/node_modules/
+ui/.expo/
+ui/dist/
+ui/npm-debug.*
+ui/*.jks
+ui/*.p8
+ui/*.p12
+ui/*.key
+ui/*.mobileprovision
+ui/*.orig.*
+ui/web-build/
+
+# macOS
+.DS_Store
+
+# Temporary files created by Metro to check the health of the file watcher
+.metro-health-check*

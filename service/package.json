@@ -1,0 +1,22 @@
+{
+  "name": "bio-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/handler.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && zip -r lambda/bio-service.zip dist node_modules package.json",
+    "deploy": "npm run build && pushd ../infra && cdk deploy; popd"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.115",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1386.0",
+    "openai": "^3.2.1"
+  }
+}
