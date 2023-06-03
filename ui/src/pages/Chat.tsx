@@ -1,4 +1,4 @@
-import { Avatar, Button, TextInput } from 'react-native-paper';
+import { Button, TextInput } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
 import useChat from '../hooks/useChat';
 import { useEffect, useMemo, useState } from 'react';
@@ -24,7 +24,7 @@ const Chat = () => {
 
   useEffect(() => {
     if (savedChatMessages) {
-      setChat(savedChatMessages[0].messages);
+      setChat(savedChatMessages[savedChatMessages.length - 1].messages);
     }
   }, [savedChatMessages]);
 

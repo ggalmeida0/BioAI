@@ -1,8 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import parseJwt from '../utils/jwtParser';
-import { DynamoDB } from 'aws-sdk';
 import { Dependencies } from '../handler';
 import { INITIAL_GREETING } from '../clients/openai';
+import serviceAPI from '../business logic/service';
 
 const getChat = async (
   event: APIGatewayProxyEvent,
@@ -10,25 +9,14 @@ const getChat = async (
   userId: string
 ): Promise<APIGatewayProxyResult> => {
   try {
-    console.log('Getting chats for user ', userId);
-
-    const dynamoDb = new DynamoDB.DocumentClient();
-    const { Items } = await dynamoDb
-      .query({
-        TableName: 'UserChats',
-        KeyConditionExpression: 'userId = :userId',
-        ExpressionAttributeValues: {
-          ':userId': userId,
-        },
-      })
-      .promise();
+    const result = await serviceAPI.getChat(userId);
 
     return {
       statusCode: 200,
       body: JSON.stringify(
-        Items?.length === 0
+        result?.length === 0
           ? [{ content: INITIAL_GREETING, role: 'assistant' }]
-          : Items
+          : result
       ),
     };
   } catch (error) {
