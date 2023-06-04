@@ -24,6 +24,7 @@ const Chat = () => {
 
   useEffect(() => {
     if (savedChatMessages) {
+      console.log(savedChatMessages);
       setChat(savedChatMessages[savedChatMessages.length - 1].messages);
     }
   }, [savedChatMessages]);
@@ -33,6 +34,8 @@ const Chat = () => {
     setInput('');
     sendChat(input);
   };
+
+  console.log(chat);
 
   const bioLastMessage = useMemo(
     () =>

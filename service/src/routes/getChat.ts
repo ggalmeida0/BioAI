@@ -13,11 +13,7 @@ const getChat = async (
 
     return {
       statusCode: 200,
-      body: JSON.stringify(
-        result?.length === 0
-          ? [{ content: INITIAL_GREETING, role: 'assistant' }]
-          : result
-      ),
+      body: JSON.stringify(result),
     };
   } catch (error) {
     console.error(error);

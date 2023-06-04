@@ -1,4 +1,5 @@
 import { DynamoDB } from 'aws-sdk';
+import { INITIAL_GREETING } from '../clients/openai';
 
 const getChat = async (userId: string) => {
   console.log('Getting chats for user ', userId);
@@ -13,7 +14,14 @@ const getChat = async (userId: string) => {
       },
     })
     .promise();
-  return Items;
+  return Items?.length === 0
+    ? [
+        {
+          date: new Date().toISOString().split('T')[0],
+          messages: [{ content: INITIAL_GREETING, role: 'assistant' }],
+        },
+      ]
+    : Items;
 };
 
 export default getChat;

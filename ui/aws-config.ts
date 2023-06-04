@@ -1,7 +1,7 @@
 const Auth = {
   region: 'us-east-2',
-  userPoolId: 'us-east-2_KUibeo1Q6',
-  userPoolWebClientId: '5o2d78td489lh6ci0a7a3r320r',
+  userPoolId: 'us-east-2_am4K7bVvt',
+  userPoolWebClientId: '77ggcpkhhioldeagd63vf3lr8f',
   mandatorySignIn: true,
   oauth: {
     domain: 'bio-ai.auth.us-east-2.amazoncognito.com',
@@ -16,7 +16,7 @@ const API = {
   endpoints: [
     {
       name: 'BioAPI',
-      endpoint: 'https://vnvdg8qcjl.execute-api.us-east-2.amazonaws.com',
+      endpoint: 'https://9r8oxxcs38.execute-api.us-east-2.amazonaws.com',
       region: 'us-east-2',
       authenticationType: 'AMAZON_COGNITO_USER_POOLS',
     },

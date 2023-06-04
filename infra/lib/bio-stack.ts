@@ -55,7 +55,7 @@ export class BioStack extends cdk.Stack {
     const openAiApiKey = cdk.aws_secretsmanager.Secret.fromSecretNameV2(
       this,
       'OPENAI_API_KEY',
-      'prod/bio'
+      'openai'
     );
 
     openAiApiKey.grantRead(lambda);
@@ -103,7 +103,7 @@ export class BioStack extends cdk.Stack {
   }
 
   setupAuth() {
-    const googleClientSecret = cdk.SecretValue.secretsManager('prod/bio', {
+    const googleClientSecret = cdk.SecretValue.secretsManager('googlecloud', {
       jsonField: 'BIO_GOOGLE_OAUTH_CLIENT_SECRET',
     });
 

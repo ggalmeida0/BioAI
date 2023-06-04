@@ -24,7 +24,7 @@ const OpenAIClientFactory = async (): Promise<OpenAIApi> => {
   try {
     const secretManagerClient = new SecretsManager({ region: 'us-east-2' });
     const credentialsSecret = await secretManagerClient
-      .getSecretValue({ SecretId: 'prod/bio' })
+      .getSecretValue({ SecretId: 'openai' })
       .promise();
     const apiKey = JSON.parse(
       credentialsSecret.SecretString || ''
