@@ -1,4 +1,8 @@
-{
+const env = process.env.EXPO_ENV;
+
+const apiEndpoint = env === 'prod' ? 'https://9r8oxxcs38.execute-api.us-east-2.amazonaws.com' : 'http://localhost:3000';
+
+export default {
   "expo": {
     "name": "bio",
     "slug": "bio",
@@ -25,6 +29,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    extra: {
+      apiEndpoint
     }
   }
 }

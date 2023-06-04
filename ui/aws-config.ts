@@ -1,3 +1,5 @@
+import Constants from 'expo-constants';
+
 const Auth = {
   region: 'us-east-2',
   userPoolId: 'us-east-2_am4K7bVvt',
@@ -12,11 +14,13 @@ const Auth = {
   },
 };
 
+console.log(Constants.expoConfig!.extra!.apiEndpoint);
+
 const API = {
   endpoints: [
     {
       name: 'BioAPI',
-      endpoint: 'https://9r8oxxcs38.execute-api.us-east-2.amazonaws.com',
+      endpoint: Constants.expoConfig!.extra!.apiEndpoint,
       region: 'us-east-2',
       authenticationType: 'AMAZON_COGNITO_USER_POOLS',
     },

@@ -18,22 +18,29 @@ const sendChat = async (
   console.log('User', userId, 'Sending message: ', userMessage);
 
   const ddbConversationResults = (await serviceAPI.getChat(userId)) ?? [];
-  // this assumes results are sorted by date. Assumes no limit on the llm context size
-  const latestContext = ddbConversationResults?.reduce(
-    (acc: ChatCompletionRequestMessage[], cur) => [...acc, ...cur.messages],
-    []
-  );
 
-  console.log('Sending with context: ', latestContext);
+  const latestContext = ddbConversationResults
+    ?.reverse()
+    .reduce((acc: ChatCompletionRequestMessage[], cur) => {
+      const tokenCount = acc.reduce(
+        (acc, cur) => acc + cur.content.split(' ').length,
+        0
+      );
+      return tokenCount < 4000 ? [...acc, ...cur.messages] : acc;
+    }, []);
+
+  const llmInput = [
+    SYSTEM_MESSAGE,
+    ...latestContext,
+    { role: User, content: userMessage },
+  ];
+
+  console.log('Sending to LLM with input: ', llmInput);
 
   const llmResponse = await openAIClient.createChatCompletion(
     {
       model: 'gpt-3.5-turbo',
-      messages: [
-        SYSTEM_MESSAGE,
-        ...latestContext,
-        { role: User, content: userMessage },
-      ],
+      messages: llmInput,
     },
     { timeout: 30000 }
   );

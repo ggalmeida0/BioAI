@@ -72,6 +72,11 @@ const Chat = () => {
           value={input}
           mode="outlined"
           onChangeText={setInput}
+          onKeyPress={(event: any) => {
+            if (event.key === 'Enter') {
+              handleSend();
+            }
+          }}
         ></TextInput>
         <Button mode="outlined" onPress={handleSend} style={styles.button}>
           Send

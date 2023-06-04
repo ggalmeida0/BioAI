@@ -65,7 +65,7 @@ export class BioStack extends cdk.Stack {
       corsPreflight: {
         allowHeaders: ['*'],
         allowMethods: [CorsHttpMethod.GET, CorsHttpMethod.POST],
-        allowOrigins: ['http://localhost:19006'],
+        allowOrigins: ['http://localhost:19006'], // change this once we have a domain
         maxAge: cdk.Duration.days(7),
       },
     });

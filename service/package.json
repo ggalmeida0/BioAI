@@ -5,14 +5,16 @@
   "main": "src/handler.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && zip -r lambda/bio-service.zip dist node_modules package.json",
-    "deploy": "npm run build && pushd ../infra && cdk deploy; popd"
+    "build": "tsc && zip -r lambda/bio-service.zip dist node_modules package.json && pushd ../infra && cdk synth; popd",
+    "deploy": "npm run build && pushd ../infra && cdk deploy; popd",
+    "start": "npm run build && sam local start-api -t ../infra/cdk.out/BioStack.template.json -l lambda.logs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.115",
+    "@types/node": "^20.2.5",
     "typescript": "^5.0.4"
   },
   "dependencies": {

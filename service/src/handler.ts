@@ -58,15 +58,30 @@ exports.handler = async (
   }
 
   try {
-    const userId = parseJwt(event.headers.authorization!)!.payload[
-      'cognito:username'
-    ];
+    const token = event.headers.authorization ?? event.headers.Authorization;
+    if (!token) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ message: 'Could not get auth token' }),
+      };
+    }
+
+    const userId = parseJwt(token)!.payload['cognito:username'];
 
     const dependencies = {
       dynamoDBClient: new DynamoDB({ region: 'us-east-2' }),
       openAIClient: await OpenAIClientFactory(),
     };
-    return await route.action(event, dependencies, userId);
+    const result = await route.action(event, dependencies, userId);
+    return {
+      ...result,
+      // Even though we are setting cors headers in the API Gateway, we need it here to have SAM local work https://github.com/aws/aws-sam-cli/issues/4161.
+      // Once the issue is resolved, we can remove this.
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST',
+      },
+    };
   } catch (error) {
     console.error(error);
     return {

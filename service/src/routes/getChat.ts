@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { Dependencies } from '../handler';
 import { INITIAL_GREETING } from '../clients/openai';
-import serviceAPI from '../business logic/service';
+import serviceAPI from '../logic/service';
 
 const getChat = async (
   event: APIGatewayProxyEvent,

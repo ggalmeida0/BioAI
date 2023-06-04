@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "start": "EXPO_ENV=dev expo start",
+    "android": "EXPO_ENV=dev expo start --android",
+    "ios": "EXPO_ENV=dev expo start --ios",
+    "web": "EXPO_ENV=dev expo start --web"
   },
   "dependencies": {
     "@expo/webpack-config": "^18.0.1",
