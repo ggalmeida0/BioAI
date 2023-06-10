@@ -1,15 +1,19 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { Dependencies } from '../handler';
-import { INITIAL_GREETING } from '../clients/openai';
-import serviceAPI from '../logic/service';
+import serviceAPI, { GetChatInput } from '../logic/service';
 
 const getChat = async (
-  event: APIGatewayProxyEvent,
+  _: APIGatewayProxyEventV2,
   dependencies: Dependencies,
   userId: string
-): Promise<APIGatewayProxyResult> => {
+): Promise<APIGatewayProxyResultV2> => {
   try {
-    const result = await serviceAPI.getChat(userId);
+    const { ddbChat } = dependencies;
+    const getChatInput: GetChatInput = {
+      userId,
+      ddbChat,
+    };
+    const result = await serviceAPI.getChat(getChatInput);
 
     return {
       statusCode: 200,

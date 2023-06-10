@@ -1,4 +1,3 @@
-import { ChatCompletionRequestMessage } from 'openai';
 import {
   UseMutationResult,
   UseQueryResult,
@@ -11,7 +10,12 @@ import useAuth from './useAuth';
 
 type GetChatResponse = {
   date: string;
-  messages: ChatCompletionRequestMessage[];
+  messages: Message[];
+};
+
+export type Message = {
+  content: string;
+  role: string;
 };
 
 export type ChatContext = {
@@ -20,7 +24,7 @@ export type ChatContext = {
 };
 
 type useChatProps = {
-  onSendSuccess: (data: string) => void;
+  onSendSuccess: (data: Message) => void;
 };
 
 const useChat = ({ onSendSuccess }: useChatProps): ChatContext => {

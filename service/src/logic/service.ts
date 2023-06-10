@@ -1,20 +1,27 @@
-import { ChatCompletionRequestMessage, OpenAIApi } from 'openai';
 import getChat from './getChat';
 import sendChat from './sendChat';
-import { AWSError, DynamoDB } from 'aws-sdk';
-import { UpdateItemOutput } from 'aws-sdk/clients/dynamodb';
-import { PromiseResult } from 'aws-sdk/lib/request';
+import { DynamoDB } from 'aws-sdk';
+import DynamoDBChat from '../clients/DynamoDBChat';
+import OpenAI from '../clients/OpenAI';
+import { AssistantMessage } from '../models/messages';
+
+export type SendChatInput = {
+  userId: string;
+  userMessage: string;
+  ddbChat: DynamoDBChat;
+  openAI: OpenAI;
+};
+
+export type GetChatInput = {
+  userId: string;
+  ddbChat: DynamoDBChat;
+};
 
 type BioServiceAPI = {
   getChat: (
-    userId: string
+    input: GetChatInput
   ) => Promise<DynamoDB.DocumentClient.ItemList | undefined>;
-  sendChat: (
-    openAIClient: OpenAIApi,
-    userId: string,
-    message: string,
-    dynamoDBCLient: DynamoDB
-  ) => Promise<string>;
+  sendChat: (input: SendChatInput) => Promise<AssistantMessage>;
 };
 
 const serviceAPI: BioServiceAPI = {

@@ -1,34 +1,28 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { Dependencies } from '../handler';
-import { ChatCompletionRequestMessageRoleEnum } from 'openai';
-import serviceAPI from '../logic/service';
+import serviceAPI, { SendChatInput } from '../logic/service';
 
 const sendChat = async (
-  event: APIGatewayProxyEvent,
+  event: APIGatewayProxyEventV2,
   dependencies: Dependencies,
   userId: string
-): Promise<APIGatewayProxyResult> => {
-  const { openAIClient, dynamoDBClient } = dependencies;
-  const { message } = JSON.parse(event.body || '');
-  serviceAPI.sendChat(openAIClient, message, userId, dynamoDBClient);
-  try {
-    const result = await serviceAPI.sendChat(
-      openAIClient,
-      message,
-      userId,
-      dynamoDBClient
-    );
-    return {
-      statusCode: 200,
-      body: JSON.stringify(result),
-    };
-  } catch (error) {
-    console.error(error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Internal server error' }),
-    };
-  }
+): Promise<APIGatewayProxyResultV2> => {
+  const { openAI, ddbChat } = dependencies;
+  const { message: userMessage } = JSON.parse(event.body || '');
+
+  const input: SendChatInput = {
+    userId,
+    userMessage,
+    ddbChat,
+    openAI,
+  };
+
+  const result = await serviceAPI.sendChat(input);
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(result),
+  };
 };
 
 export default sendChat;

@@ -1,28 +1,25 @@
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-  Context,
-} from 'aws-lambda';
+import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import getChat from './routes/getChat';
 import sendChat from './routes/sendChat';
-import { DynamoDB } from 'aws-sdk';
-import { Configuration, OpenAIApi } from 'openai';
-import OpenAIClientFactory from './clients/openai';
-import parseJwt from './utils/jwtParser';
+import { getTokenFromAPIGWEvent, parseJwt } from './utils/authToken';
+import UnauthorizedError from './errors/UnauthorizedError';
+import NoOperationFoundError from './errors/NoOperationFoundError';
+import DynamoDBChat from './clients/DynamoDBChat';
+import OpenAI from './clients/OpenAI';
 
 export type Dependencies = {
-  dynamoDBClient: DynamoDB;
-  openAIClient: OpenAIApi;
+  ddbChat: DynamoDBChat;
+  openAI: OpenAI;
 };
 
 type Route = {
   path: string;
   method: string;
   action: (
-    event: APIGatewayProxyEvent,
+    event: APIGatewayProxyEventV2,
     dependencies: Dependencies,
     userId: string
-  ) => Promise<APIGatewayProxyResult>;
+  ) => Promise<APIGatewayProxyResultV2>;
 };
 
 const routes: Route[] = [
@@ -38,43 +35,41 @@ const routes: Route[] = [
   },
 ];
 
-exports.handler = async (
-  event: APIGatewayProxyEvent,
-  _context: Context
-): Promise<APIGatewayProxyResult> => {
-  // @ts-ignore aws-lambda types are wrong
-  const { path, method } = event.requestContext.http;
-  console.log('Received event: ', event);
-
+const getRoute = (path: string, method: string) => {
   const route = routes.find(
     (route) => route.path === path && route.method === method
   );
 
   if (!route) {
-    return {
-      statusCode: 404,
-      body: JSON.stringify({ message: 'Route not found' }),
-    };
+    throw new NoOperationFoundError(
+      `No operation found for path ${path} and method ${method}`
+    );
   }
 
-  try {
-    const token = event.headers.authorization ?? event.headers.Authorization;
-    if (!token) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ message: 'Could not get auth token' }),
-      };
-    }
+  return route;
+};
 
+exports.handler = async (
+  event: APIGatewayProxyEventV2
+): Promise<APIGatewayProxyResultV2> => {
+  const { path, method } = event.requestContext.http;
+  console.log('Received event: ', event);
+
+  const route = getRoute(path, method);
+
+  try {
+    const token = getTokenFromAPIGWEvent(event);
     const userId = parseJwt(token)!.payload['cognito:username'];
 
-    const dependencies = {
-      dynamoDBClient: new DynamoDB({ region: 'us-east-2' }),
-      openAIClient: await OpenAIClientFactory(),
+    const dependencies: Dependencies = {
+      ddbChat: new DynamoDBChat(userId),
+      openAI: await OpenAI.init(),
     };
+
     const result = await route.action(event, dependencies, userId);
+
     return {
-      ...result,
+      ...(result as object),
       // Even though we are setting cors headers in the API Gateway, we need it here to have SAM local work https://github.com/aws/aws-sam-cli/issues/4161.
       // Once the issue is resolved, we can remove this.
       headers: {
@@ -84,6 +79,21 @@ exports.handler = async (
     };
   } catch (error) {
     console.error(error);
+
+    if (error instanceof UnauthorizedError) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ message: 'Unauthorized' }),
+      };
+    }
+
+    if (error instanceof NoOperationFoundError) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ message: 'Route not found' }),
+      };
+    }
+
     return {
       statusCode: 500,
       body: JSON.stringify({ message: 'Internal server error' }),

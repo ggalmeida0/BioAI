@@ -1,83 +1,27 @@
-import {
-  ChatCompletionRequestMessage,
-  ChatCompletionRequestMessageRoleEnum,
-  OpenAIApi,
-} from 'openai';
-import { SYSTEM_MESSAGE } from '../clients/openai';
-import { DynamoDB } from 'aws-sdk';
-import serviceAPI from './service';
+import { Message, UserMessage } from '../models/messages';
+import { SendChatInput } from './service';
 
-const { User } = ChatCompletionRequestMessageRoleEnum;
+const sendChat = async (input: SendChatInput) => {
+  const { userId, userMessage: message, openAI, ddbChat } = input;
 
-const sendChat = async (
-  openAIClient: OpenAIApi,
-  userMessage: string,
-  userId: string,
-  ddbClient: DynamoDB
-) => {
-  console.log('User', userId, 'Sending message: ', userMessage);
+  console.log('User', userId, 'Sending message: ', message);
 
-  const ddbConversationResults = (await serviceAPI.getChat(userId)) ?? [];
+  const chatHistory = await ddbChat.getMessages();
 
-  const latestContext = ddbConversationResults
-    ?.reverse()
-    .reduce((acc: ChatCompletionRequestMessage[], cur) => {
-      const tokenCount = acc.reduce(
-        (acc, cur) => acc + cur.content.split(' ').length,
-        0
-      );
-      return tokenCount < 4000 ? [...acc, ...cur.messages] : acc;
-    }, []);
+  const userMessage = new UserMessage(message);
 
-  const llmInput = [
-    SYSTEM_MESSAGE,
-    ...latestContext,
-    { role: User, content: userMessage },
+  const messageSequence: Message[] = [
+    ...chatHistory.map((chat) => chat.messages).flat(),
+    userMessage,
   ];
 
-  console.log('Sending to LLM with input: ', llmInput);
+  const llmResponse = await openAI.sendChat(messageSequence);
 
-  const llmResponse = await openAIClient.createChatCompletion(
-    {
-      model: 'gpt-3.5-turbo',
-      messages: llmInput,
-    },
-    { timeout: 30000 }
-  );
-  const llmMessage: string[] = llmResponse.data.choices.map(
-    (c) => c.message!.content
-  );
+  console.log('LLM response: ', llmResponse);
 
-  // not sure when this would happen, so I want to know if it does
-  if (llmMessage.length > 1)
-    throw new Error('LLM returned more than one message.');
+  await ddbChat.addMessages([userMessage, llmResponse]);
 
-  console.log('LLM response: ', llmMessage);
-
-  const today = new Date().toISOString().split('T')[0];
-
-  const params = {
-    TableName: 'UserChats',
-    Key: {
-      userId: { S: userId },
-      date: { S: today },
-    },
-    ExpressionAttributeValues: {
-      ':message': {
-        L: [
-          { M: { content: { S: userMessage }, role: { S: 'user' } } },
-          { M: { content: { S: llmMessage[0] }, role: { S: 'assistant' } } },
-        ],
-      },
-      ':empty_list': { L: [] },
-    },
-    UpdateExpression:
-      'SET messages = list_append(if_not_exists(messages, :empty_list), :message)',
-  };
-
-  await ddbClient.updateItem(params).promise();
-
-  return llmMessage[0];
+  return llmResponse;
 };
 
 export default sendChat;

@@ -2,6 +2,7 @@
 service/node_modules
 service/lambda
 service/dist
+service/lambda.logs
 
 # Infra
 infra/*.js

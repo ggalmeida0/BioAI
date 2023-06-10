@@ -1,3 +1,6 @@
+import { APIGatewayProxyEventV2 } from 'aws-lambda';
+import UnauthorizedError from '../errors/UnauthorizedError';
+
 const base64UrlDecode = (str: string) => {
   const preProcessedStr =
     str.replace(/-/g, '+').replace(/_/g, '/') +
@@ -5,8 +8,7 @@ const base64UrlDecode = (str: string) => {
 
   return Buffer.from(preProcessedStr, 'base64').toString();
 };
-
-const parseJwt = (token: string) => {
+export const parseJwt = (token: string) => {
   try {
     const [headerEncoded, payloadEncoded] = token.split('.');
 
@@ -23,4 +25,10 @@ const parseJwt = (token: string) => {
   }
 };
 
-export default parseJwt;
+export const getTokenFromAPIGWEvent = (event: APIGatewayProxyEventV2) => {
+  const token = event.headers.authorization ?? event.headers.Authorization;
+  if (!token) {
+    throw new UnauthorizedError('No token found in request');
+  }
+  return token;
+};

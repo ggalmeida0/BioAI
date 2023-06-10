@@ -1,6 +1,6 @@
 import { Button, TextInput } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
-import useChat from '../hooks/useChat';
+import useChat, { Message } from '../hooks/useChat';
 import { useEffect, useMemo, useState } from 'react';
 import {
   ChatCompletionRequestMessage,
@@ -8,23 +8,22 @@ import {
 } from 'openai';
 import ChatBubble from '../components/ChatBubble';
 
-const { User, Assistant } = ChatCompletionRequestMessageRoleEnum;
+const User = 'user';
+const Assistant = 'assistant';
 
 const Chat = () => {
   const [input, setInput] = useState('');
-  const [chat, setChat] = useState<ChatCompletionRequestMessage[]>([]);
+  const [chat, setChat] = useState<Message[]>([]);
 
   const {
     messagesContext: { data: savedChatMessages },
     senderContext: { mutate: sendChat, isLoading: sendingChat },
   } = useChat({
-    onSendSuccess: (data: string) =>
-      setChat([...chat, { content: data, role: Assistant }]),
+    onSendSuccess: (data: Message) => setChat([...chat, data]),
   });
 
   useEffect(() => {
     if (savedChatMessages) {
-      console.log(savedChatMessages);
       setChat(savedChatMessages[savedChatMessages.length - 1].messages);
     }
   }, [savedChatMessages]);
