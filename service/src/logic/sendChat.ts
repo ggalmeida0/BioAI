@@ -1,10 +1,30 @@
-import { Message, SystemMessage, UserMessage } from '../models/messages';
+import { Meal } from '../types/meals';
+import {
+  AssistantMessage,
+  Message,
+  SystemMessage,
+  UserMessage,
+} from '../types/messages';
+import { extractJSON } from '../utils/json';
 import { SendChatInput } from './service';
 
-const BREAKDOWN_PROMPT =
-  'Look at the message to follow, output any nutritional breakdown in JSON format. If there is no nutritional breakdown, output an empty object. Dont say any english, just JSON';
+const BREAKDOWN_PROMPT = `
+Look at the message to follow, output any nutritional breakdown in JSON format.
 
-const sendChat = async (input: SendChatInput) => {
+Here is the data model of the JSON:
+
+{
+  title: string;
+  breakdown: {
+    calories: number;
+    carbs: number;
+    fat: number;
+    protein: number;
+  }
+}
+`;
+
+const sendChat = async (input: SendChatInput): Promise<AssistantMessage> => {
   const { userId, userMessage: message, openAI, ddbChat } = input;
 
   console.log('User', userId, 'Sending message: ', message);
@@ -14,24 +34,26 @@ const sendChat = async (input: SendChatInput) => {
   const userMessage = new UserMessage(message);
 
   const messageSequence: Message[] = [
+    new SystemMessage(BREAKDOWN_PROMPT),
     ...chatHistory.map((chat) => chat.messages).flat(),
     userMessage,
   ];
 
-  const llmResponse = await openAI.sendChat(messageSequence);
+  const rawResponse = await openAI.sendChat(messageSequence);
 
-  console.log('LLM response: ', llmResponse);
+  console.log('LLM raw response: ', rawResponse);
 
-  const breakdown = await openAI.sendChat([
-    new SystemMessage(BREAKDOWN_PROMPT),
-    llmResponse,
-  ]);
+  const { jsonObject: meal, newStr: treatedContent } = extractJSON<Meal>(
+    rawResponse.content
+  );
 
-  console.log('Breakdown: ', breakdown);
+  console.log('Meal Breakdown: ', meal);
 
-  await ddbChat.addMessages([userMessage, llmResponse]);
+  const llmMessage = new AssistantMessage(treatedContent, meal);
 
-  return llmResponse;
+  await ddbChat.addMessages([userMessage, llmMessage]);
+
+  return llmMessage;
 };
 
 export default sendChat;

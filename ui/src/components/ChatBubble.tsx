@@ -1,16 +1,15 @@
-import { ChatCompletionResponseMessageRoleEnum } from 'openai';
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Avatar } from 'react-native-paper';
 import { AntDesign } from '@expo/vector-icons';
+import ReactMarkdown from 'react-markdown';
+import { Message } from '../hooks/useChat';
 
 type ChatBubbleProps = {
-  role: ChatCompletionResponseMessageRoleEnum;
-  message: string;
+  role: 'assistant' | 'user';
+  message: Message;
   isLoading: boolean;
 };
-
-const { User, Assistant } = ChatCompletionResponseMessageRoleEnum;
 
 const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
   const [completedTyping, setCompletedTyping] = useState(false);
@@ -22,22 +21,22 @@ const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
     let i = 0;
 
     const intervalId = setInterval(() => {
-      setDisplayResponse(message.slice(0, i));
+      setDisplayResponse(message.content.slice(0, i));
 
       i++;
 
-      if (i > message.length) {
+      if (i > message.content.length) {
         clearInterval(intervalId);
         setCompletedTyping(true);
       }
     }, 10);
 
     return () => clearInterval(intervalId);
-  }, [message]);
+  }, [message.content]);
 
   const avatarImg = useMemo(
     () =>
-      role === Assistant ? (
+      role === 'assistant' ? (
         <Avatar.Image source={require('../../assets/bio.png')} />
       ) : (
         <AntDesign name="user" size={24} color="black" />
@@ -51,7 +50,7 @@ const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
         {avatarImg}
         {isLoading && <ActivityIndicator />}
       </View>
-      {!isLoading && <p>{displayResponse}</p>}
+      {!isLoading && <ReactMarkdown>{displayResponse}</ReactMarkdown>}
     </View>
   );
 };

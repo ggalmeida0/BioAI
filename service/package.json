@@ -5,9 +5,10 @@
   "main": "src/handler.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && zip -r lambda/bio-service.zip dist node_modules package.json && pushd ../infra && cdk synth; popd",
-    "deploy": "npm run build && pushd ../infra && cdk deploy; popd",
-    "start": "npm run build && sam local start-api -t ../infra/cdk.out/BioStack.template.json -l lambda.logs"
+    "dev-build": "tsc && zip -r lambda/bio-service.zip dist node_modules package.json package-lock.json && pushd ../infra && IS_DEV_ENV=true cdk synth; popd",
+    "prod-build": "tsc && zip -r lambda/bio-service.zip dist node_modules package.json && pushd ../infra && cdk synth; popd",
+    "deploy": "npm i && npm run prod-build && pushd ../infra && cdk deploy; popd",
+    "start": "npm i && npm run dev-build && sam local start-api -t ../infra/cdk.out/BioStack.template.json -l lambda.logs --env-vars env/dev-env-vars.json"
   },
   "keywords": [],
   "author": "",
@@ -15,10 +16,10 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.115",
     "@types/node": "^20.2.5",
-    "typeorm": "^0.3.16",
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "aws-jwt-verify": "^4.0.0",
     "aws-sdk": "^2.1386.0",
     "openai": "^3.2.1"
   }

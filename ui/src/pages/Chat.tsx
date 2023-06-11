@@ -1,15 +1,46 @@
-import { Button, TextInput } from 'react-native-paper';
+import { Button, IconButton, Text, TextInput } from 'react-native-paper';
 import { StyleSheet, View } from 'react-native';
-import useChat, { Message } from '../hooks/useChat';
+import useChat, { Meal, Message } from '../hooks/useChat';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  ChatCompletionRequestMessage,
-  ChatCompletionRequestMessageRoleEnum,
-} from 'openai';
+import { AntDesign } from '@expo/vector-icons';
 import ChatBubble from '../components/ChatBubble';
+import useMeals from '../hooks/useMeals';
 
 const User = 'user';
 const Assistant = 'assistant';
+
+// Styling sucks, but it's just a placeholder
+const MealCard = ({
+  meal,
+  onSave,
+}: {
+  meal: Meal;
+  onSave: (meal: Meal) => void;
+}) => {
+  return (
+    <>
+      <div
+        style={{
+          border: '1px solid black',
+          margin: '10px',
+          padding: '10px',
+          borderRadius: '5px',
+        }}
+      >
+        <h2>{meal.title}</h2>
+        <p>Calories: {meal.breakdown.calories}</p>
+        <p>Carbs: {meal.breakdown.carbs}</p>
+        <p>Fat: {meal.breakdown.fat}</p>
+        <p>Protein: {meal.breakdown.protein}</p>
+      </div>
+      <IconButton
+        icon={() => <AntDesign name="save" size={24} color="black" />}
+        onPress={() => onSave(meal)}
+        disabled={!meal}
+      />
+    </>
+  );
+};
 
 const Chat = () => {
   const [input, setInput] = useState('');
@@ -21,6 +52,8 @@ const Chat = () => {
   } = useChat({
     onSendSuccess: (data: Message) => setChat([...chat, data]),
   });
+
+  const { mutate: saveMeal } = useMeals();
 
   useEffect(() => {
     if (savedChatMessages) {
@@ -34,25 +67,28 @@ const Chat = () => {
     sendChat(input);
   };
 
-  console.log(chat);
-
   const bioLastMessage = useMemo(
     () =>
-      chat.reduce((acc, curr) => (curr.role === Assistant ? curr : acc), {
-        content: '',
-        role: Assistant,
-      })?.content,
+      chat.reduce<Message>(
+        (acc, curr) => (curr.role === Assistant ? curr : acc),
+        {
+          content: '',
+          role: Assistant,
+        }
+      ),
     [chat]
   );
 
   const userLastMessage = useMemo(
     () =>
-      chat.reduce((acc, curr) => (curr.role === User ? curr : acc), {
+      chat.reduce<Message>((acc, curr) => (curr.role === User ? curr : acc), {
         content: '',
         role: User,
-      })?.content,
+      }),
     [chat]
   );
+
+  console.log('chat', chat);
 
   return (
     <View style={styles.container}>
@@ -66,6 +102,12 @@ const Chat = () => {
         message={bioLastMessage}
         isLoading={sendingChat}
       />
+      {bioLastMessage.meal && (
+        <MealCard
+          meal={bioLastMessage.meal}
+          onSave={(meal: Meal) => saveMeal(meal)}
+        />
+      )}
       <View style={styles.inputContainer}>
         <TextInput
           value={input}

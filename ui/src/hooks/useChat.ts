@@ -13,9 +13,22 @@ type GetChatResponse = {
   messages: Message[];
 };
 
+export type Meal = {
+  title: string;
+  breakdown: NutritionBreakdown;
+};
+
+type NutritionBreakdown = {
+  calories: number;
+  carbs: number;
+  fat: number;
+  protein: number;
+};
+
 export type Message = {
   content: string;
   role: string;
+  meal?: Meal;
 };
 
 export type ChatContext = {

@@ -1,6 +1,6 @@
 const env = process.env.EXPO_ENV;
 
-const apiEndpoint = env === 'prod' ? 'https://9r8oxxcs38.execute-api.us-east-2.amazonaws.com' : 'http://localhost:3000';
+const apiEndpoint = env === 'prod' ? 'https://uudihltgbu4wqxm3nckfe7ylgi0kzccx.lambda-url.us-east-2.on.aws' : 'http://localhost:3000';
 
 export default {
   "expo": {

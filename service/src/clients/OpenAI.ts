@@ -1,11 +1,6 @@
 import { SecretsManager } from 'aws-sdk';
 import { Configuration, OpenAIApi } from 'openai';
-import {
-  AssistantMessage,
-  Message,
-  SystemMessage,
-  UserMessage,
-} from '../models/messages';
+import { AssistantMessage, Message, SystemMessage } from '../types/messages';
 import DependencyError from '../errors/DependencyError';
 
 export const SYSTEM_MESSAGE: SystemMessage = new SystemMessage(`
@@ -45,10 +40,14 @@ class OpenAI {
     return new OpenAI(client);
   }
 
-  async sendChat(messages: Message[]): Promise<AssistantMessage> {
+  async sendChat(
+    messages: Message[],
+    temperature: number = 0.5
+  ): Promise<AssistantMessage> {
     const requestResponse = await this.client.createChatCompletion({
       model: this.model,
       messages,
+      temperature,
     });
 
     const llmResponse = requestResponse.data.choices[0].message;

@@ -1,7 +1,7 @@
 import { DynamoDB } from 'aws-sdk';
 import { INITIAL_GREETING } from './OpenAI';
-import { ChatCompletionRequestMessage } from 'openai';
-import { Message } from '../models/messages';
+import { Message } from '../types/messages';
+import { Meal } from '../types/meals';
 
 // This is what is persisted in DDB
 export type ChatSession = {
@@ -24,9 +24,13 @@ class DynamoDBChat {
     const { Items } = await this.client
       .query({
         TableName: 'UserChats',
-        KeyConditionExpression: 'userId = :userId',
+        KeyConditionExpression: 'userId = :userId and #date = :date',
         ExpressionAttributeValues: {
           ':userId': this.userId,
+          ':date': this.today,
+        },
+        ExpressionAttributeNames: {
+          '#date': 'date',
         },
       })
       .promise();
@@ -45,30 +49,43 @@ class DynamoDBChat {
   }
 
   async addMessages(messages: Message[]): Promise<void> {
-    this.client.update({
-      TableName: 'UserChats',
-      Key: {
-        userId: { S: this.userId },
-        date: { S: this.today },
-      },
-      ExpressionAttributeValues: {
-        ':message': {
-          L: messages.map((message) => {
-            M: {
-              content: {
-                S: message.content;
-              }
-              role: {
-                S: message.role;
-              }
-            }
-          }),
+    await this.client
+      .update({
+        TableName: 'UserChats',
+        Key: {
+          userId: this.userId,
+          date: this.today,
         },
-        ':empty_list': { L: [] },
-      },
-      UpdateExpression:
-        'SET messages = list_append(if_not_exists(messages, :empty_list), :message)',
-    });
+        ExpressionAttributeValues: {
+          ':message': messages.map((message) => ({
+            content: message.content,
+            role: message.role,
+            meal: message.meal,
+          })),
+          ':empty_list': [],
+        },
+        UpdateExpression:
+          'SET messages = list_append(if_not_exists(messages, :empty_list), :message)',
+      })
+      .promise();
+  }
+
+  async addMeal(meal: Meal): Promise<void> {
+    await this.client
+      .update({
+        TableName: 'UserChats',
+        Key: {
+          userId: this.userId,
+          date: this.today,
+        },
+        ExpressionAttributeValues: {
+          ':meal': [meal],
+          ':empty_list': [],
+        },
+        UpdateExpression:
+          'SET meal = list_append(if_not_exists(meals, :empty_list), :meal)',
+      })
+      .promise();
   }
 }
 

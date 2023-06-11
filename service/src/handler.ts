@@ -6,6 +6,8 @@ import UnauthorizedError from './errors/UnauthorizedError';
 import NoOperationFoundError from './errors/NoOperationFoundError';
 import DynamoDBChat from './clients/DynamoDBChat';
 import OpenAI from './clients/OpenAI';
+import { CognitoJwtVerifier } from 'aws-jwt-verify';
+import saveMeal from './routes/saveMeal';
 
 export type Dependencies = {
   ddbChat: DynamoDBChat;
@@ -33,6 +35,11 @@ const routes: Route[] = [
     method: 'POST',
     action: sendChat,
   },
+  {
+    path: '/saveMeal',
+    method: 'POST',
+    action: saveMeal,
+  },
 ];
 
 const getRoute = (path: string, method: string) => {
@@ -49,6 +56,12 @@ const getRoute = (path: string, method: string) => {
   return route;
 };
 
+const verifier = CognitoJwtVerifier.create({
+  userPoolId: process.env.USER_POOL_ID!,
+  tokenUse: 'id',
+  clientId: process.env.USER_POOL_CLIENT_ID!,
+});
+
 exports.handler = async (
   event: APIGatewayProxyEventV2
 ): Promise<APIGatewayProxyResultV2> => {
@@ -59,6 +72,8 @@ exports.handler = async (
 
   try {
     const token = getTokenFromAPIGWEvent(event);
+    await verifier.verify(token);
+
     const userId = parseJwt(token)!.payload['cognito:username'];
 
     const dependencies: Dependencies = {
@@ -70,11 +85,12 @@ exports.handler = async (
 
     return {
       ...(result as object),
-      // Even though we are setting cors headers in the API Gateway, we need it here to have SAM local work https://github.com/aws/aws-sam-cli/issues/4161.
-      // Once the issue is resolved, we can remove this.
+      // Even though we are setting cors headers in the Function Url, we need it here to have SAM local work https://github.com/aws/aws-sam-cli/issues/4299.
+      // Once the feature is released, we can remove this.
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST',
+        'Access-Control-Allow-Headers': '*',
       },
     };
   } catch (error) {

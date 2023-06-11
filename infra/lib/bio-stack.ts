@@ -1,21 +1,63 @@
 import * as cdk from 'aws-cdk-lib';
-import { UserPoolClientIdentityProvider } from 'aws-cdk-lib/aws-cognito';
-import { Construct } from 'constructs';
 import {
-  CorsHttpMethod,
-  HttpApi,
-  HttpMethod,
-} from '@aws-cdk/aws-apigatewayv2-alpha';
-import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
-import { HttpJwtAuthorizer } from '@aws-cdk/aws-apigatewayv2-authorizers-alpha';
+  UserPool,
+  UserPoolClient,
+  UserPoolClientIdentityProvider,
+} from 'aws-cdk-lib/aws-cognito';
+import { Construct } from 'constructs';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Function, FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
+import { HttpMethod } from 'aws-cdk-lib/aws-events';
+import { CorsHttpMethod, HttpApi } from '@aws-cdk/aws-apigatewayv2-alpha';
+import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 
 export class BioStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+    const isDevEnv = !!process.env.IS_DEV_ENV;
     const { userPool, client } = this.setupAuth();
     this.setupDatabase();
-    this.setupService(userPool, client);
+    this.setupService(userPool, client, isDevEnv);
+  }
+
+  setupDevApi(devLambda: Function) {
+    const api = new HttpApi(this, 'BioAPI', {
+      apiName: 'BioAPI',
+      corsPreflight: {
+        allowHeaders: ['*'],
+        allowMethods: [CorsHttpMethod.GET, CorsHttpMethod.POST],
+        allowOrigins: ['*'],
+      },
+    });
+
+    const getChatIntegration = new HttpLambdaIntegration(
+      'APIIntegration::getChat',
+      devLambda
+    );
+    const sendChatIntegration = new HttpLambdaIntegration(
+      'APIIntegration::sendChat',
+      devLambda
+    );
+    const saveMealIntegration = new HttpLambdaIntegration(
+      'APIIntegration::saveMeal',
+      devLambda
+    );
+
+    api.addRoutes({
+      path: '/getChat',
+      methods: [HttpMethod.GET],
+      integration: getChatIntegration,
+    });
+    api.addRoutes({
+      path: '/sendChat',
+      methods: [HttpMethod.POST],
+      integration: sendChatIntegration,
+    });
+    api.addRoutes({
+      path: '/saveMeal',
+      methods: [HttpMethod.POST],
+      integration: saveMealIntegration,
+    });
   }
 
   setupDatabase() {
@@ -34,10 +76,11 @@ export class BioStack extends cdk.Stack {
   }
 
   setupService(
-    userPool: cdk.aws_cognito.UserPool,
-    client: cdk.aws_cognito.UserPoolClient
+    userPool: UserPool,
+    client: UserPoolClient,
+    isDevEnv: boolean = false
   ) {
-    const lambda = new cdk.aws_lambda.Function(this, 'BioService', {
+    const lambda = new Function(this, 'BioService', {
       functionName: 'BioService',
       runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
       handler: 'dist/handler.handler',
@@ -49,8 +92,26 @@ export class BioStack extends cdk.Stack {
           Resource: 'arn:aws:dynamodb:*:*:table/UserChats',
         }),
       ],
-      timeout: cdk.Duration.seconds(30),
+      timeout: cdk.Duration.seconds(900),
+      environment: {
+        USER_POOL_ID: userPool.userPoolId,
+        USER_POOL_CLIENT_ID: client.userPoolClientId,
+      },
     });
+
+    if (isDevEnv) {
+      this.setupDevApi(lambda);
+    } else {
+      lambda.addFunctionUrl({
+        authType: FunctionUrlAuthType.NONE,
+        cors: {
+          allowCredentials: true,
+          allowedOrigins: ['*'],
+          allowedMethods: [HttpMethod.GET, HttpMethod.POST],
+          allowedHeaders: ['*'],
+        },
+      });
+    }
 
     const openAiApiKey = cdk.aws_secretsmanager.Secret.fromSecretNameV2(
       this,
@@ -59,47 +120,6 @@ export class BioStack extends cdk.Stack {
     );
 
     openAiApiKey.grantRead(lambda);
-
-    const api = new HttpApi(this, 'BioAPI', {
-      apiName: 'BioAPI',
-      corsPreflight: {
-        allowHeaders: ['*'],
-        allowMethods: [CorsHttpMethod.GET, CorsHttpMethod.POST],
-        allowOrigins: ['http://localhost:19006'], // change this once we have a domain
-        maxAge: cdk.Duration.days(7),
-      },
-    });
-
-    const authorizer = new HttpJwtAuthorizer(
-      'APIAuthorizer',
-      `https://cognito-idp.${this.region}.amazonaws.com/${userPool.userPoolId}`,
-      {
-        identitySource: ['$request.header.Authorization'],
-        jwtAudience: [client.userPoolClientId],
-      }
-    );
-
-    const getChatIntegration = new HttpLambdaIntegration(
-      'APIIntegration::getChat',
-      lambda
-    );
-    const sendChatIntegration = new HttpLambdaIntegration(
-      'APIIntegration::sendChat',
-      lambda
-    );
-
-    api.addRoutes({
-      path: '/getChat',
-      methods: [HttpMethod.GET],
-      integration: getChatIntegration,
-      authorizer,
-    });
-    api.addRoutes({
-      path: '/sendChat',
-      methods: [HttpMethod.POST],
-      integration: sendChatIntegration,
-      authorizer,
-    });
   }
 
   setupAuth() {
