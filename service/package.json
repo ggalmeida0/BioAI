@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "aws-jwt-verify": "^4.0.0",
+    "@dqbd/tiktoken": "^1.0.7",
     "aws-sdk": "^2.1386.0",
     "openai": "^3.2.1"
   }

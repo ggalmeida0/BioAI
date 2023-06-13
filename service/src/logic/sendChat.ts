@@ -6,6 +6,7 @@ import {
   UserMessage,
 } from '../types/messages';
 import { extractJSON } from '../utils/json';
+import { trimTokensToFitInContext } from '../utils/llmToken';
 import { SendChatInput } from './service';
 
 const BREAKDOWN_PROMPT = `
@@ -39,7 +40,7 @@ const sendChat = async (input: SendChatInput): Promise<AssistantMessage> => {
     userMessage,
   ];
 
-  const rawResponse = await openAI.sendChat(messageSequence);
+  const rawResponse = await openAI.sendChat(trimTokensToFitInContext(messageSequence));
 
   console.log('LLM raw response: ', rawResponse);
 
