@@ -42,6 +42,10 @@ export class BioStack extends cdk.Stack {
       'APIIntegration::saveMeal',
       devLambda
     );
+    const getFrequentMealsIntegration = new HttpLambdaIntegration(
+      'APIIntegration::getFrequentMeals',
+      devLambda
+    );
 
     api.addRoutes({
       path: '/getChat',
@@ -58,18 +62,23 @@ export class BioStack extends cdk.Stack {
       methods: [HttpMethod.POST],
       integration: saveMealIntegration,
     });
+    api.addRoutes({
+      path: '/getFrequentMeals',
+      methods: [HttpMethod.GET],
+      integration: getFrequentMealsIntegration,
+    });
   }
 
   setupDatabase() {
-    new cdk.aws_dynamodb.Table(this, 'UserChats', {
-      tableName: 'UserChats',
+    new cdk.aws_dynamodb.Table(this, 'UserSessions', {
+      tableName: 'UserSessions',
       partitionKey: {
         name: 'userId',
         type: cdk.aws_dynamodb.AttributeType.STRING,
       },
       sortKey: {
         name: 'date',
-        type: cdk.aws_dynamodb.AttributeType.STRING,
+        type: cdk.aws_dynamodb.AttributeType.NUMBER,
       },
       billingMode: cdk.aws_dynamodb.BillingMode.PAY_PER_REQUEST,
     });

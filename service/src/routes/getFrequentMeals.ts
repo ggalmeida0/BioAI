@@ -1,19 +1,17 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { Dependencies } from '../handler';
-import serviceAPI, { GetChatInput } from '../logic/service';
+import serviceAPI, { GetFrequentMealsInput } from '../logic/service';
 
-const getChat = async (
+const getFrequentMeals = async (
   _: APIGatewayProxyEventV2,
   dependencies: Dependencies,
   userId: string
 ): Promise<APIGatewayProxyResultV2> => {
   try {
     const { ddb } = dependencies;
-    const getChatInput: GetChatInput = {
-      userId,
-      ddb,
-    };
-    const result = await serviceAPI.getChat(getChatInput);
+    const getFrequentMealsInput: GetFrequentMealsInput = { ddb }
+    console.log('Getting frequent meals for user: ', userId)
+    const result = await serviceAPI.getFrequentMeals(getFrequentMealsInput);
 
     return {
       statusCode: 200,
@@ -28,4 +26,4 @@ const getChat = async (
   }
 };
 
-export default getChat;
+export default getFrequentMeals;

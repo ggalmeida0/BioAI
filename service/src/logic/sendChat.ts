@@ -26,21 +26,23 @@ Here is the data model of the JSON:
 `;
 
 const sendChat = async (input: SendChatInput): Promise<AssistantMessage> => {
-  const { userId, userMessage: message, openAI, ddbChat } = input;
+  const { userId, userMessage: message, openAI, ddb } = input;
 
   console.log('User', userId, 'Sending message: ', message);
 
-  const chatHistory = await ddbChat.getMessages();
+  const chatHistory = await ddb.getMessages();
 
   const userMessage = new UserMessage(message);
 
-  const messageSequence: Message[] = [
+  const inputContext: Message[] = trimTokensToFitInContext([
     new SystemMessage(BREAKDOWN_PROMPT),
     ...chatHistory.map((chat) => chat.messages).flat(),
     userMessage,
-  ];
+  ]);
 
-  const rawResponse = await openAI.sendChat(trimTokensToFitInContext(messageSequence));
+  console.log(inputContext)
+
+  const rawResponse = await openAI.sendChat(inputContext);
 
   console.log('LLM raw response: ', rawResponse);
 
@@ -52,7 +54,7 @@ const sendChat = async (input: SendChatInput): Promise<AssistantMessage> => {
 
   const llmMessage = new AssistantMessage(treatedContent, meal);
 
-  await ddbChat.addMessages([userMessage, llmMessage]);
+  await ddb.addMessages([userMessage, llmMessage]);
 
   return llmMessage;
 };

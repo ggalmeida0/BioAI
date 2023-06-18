@@ -4,13 +4,14 @@ import sendChat from './routes/sendChat';
 import { getTokenFromAPIGWEvent, parseJwt } from './utils/authToken';
 import UnauthorizedError from './errors/UnauthorizedError';
 import NoOperationFoundError from './errors/NoOperationFoundError';
-import DynamoDBChat from './clients/DynamoDBChat';
+import DynamoDBFacade from './clients/DynamoDBFacade';
 import OpenAI from './clients/OpenAI';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import saveMeal from './routes/saveMeal';
+import getFrequentMeals from './routes/getFrequentMeals';
 
 export type Dependencies = {
-  ddbChat: DynamoDBChat;
+  ddb: DynamoDBFacade;
   openAI: OpenAI;
 };
 
@@ -40,6 +41,11 @@ const routes: Route[] = [
     method: 'POST',
     action: saveMeal,
   },
+  {
+    path: '/getFrequentMeals',
+    method: 'GET',
+    action: getFrequentMeals,
+  }
 ];
 
 const getRoute = (path: string, method: string) => {
@@ -77,7 +83,7 @@ exports.handler = async (
     const userId = parseJwt(token)!.payload['cognito:username'];
 
     const dependencies: Dependencies = {
-      ddbChat: new DynamoDBChat(userId),
+      ddb: new DynamoDBFacade(userId),
       openAI: await OpenAI.init(),
     };
 

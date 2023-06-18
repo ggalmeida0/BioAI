@@ -53,7 +53,10 @@ const Chat = () => {
     onSendSuccess: (data: Message) => setChat([...chat, data]),
   });
 
-  const { mutate: saveMeal } = useMeals();
+  const {
+    saveMealMutation: { mutate: saveMeal },
+    getFrequentMealsQuery: { data: frequentMeals },
+  } = useMeals();
 
   useEffect(() => {
     if (savedChatMessages) {

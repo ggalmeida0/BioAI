@@ -1,11 +1,11 @@
 import { GetChatInput } from './service';
 
 const getChat = async (input: GetChatInput) => {
-  const { userId, ddbChat } = input;
+  const { userId, ddb } = input;
 
   console.log('Getting chats for user ', userId);
 
-  return await ddbChat.getMessages();
+  return await ddb.getMessages();
 };
 
 export default getChat;

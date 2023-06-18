@@ -12,7 +12,7 @@ export function extractJSON<T = object>(str: string): ExtractJSONResult<T> {
     console.error('No valid JSON object found:', e);
   }
 
-  const newStr = str.replace(jsonString, '<JSON>').trim();
+  const newStr = str.replace(jsonString, '').trim();
 
   return { jsonObject, newStr };
 }

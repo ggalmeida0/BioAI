@@ -7,13 +7,13 @@ const sendChat = async (
   dependencies: Dependencies,
   userId: string
 ): Promise<APIGatewayProxyResultV2> => {
-  const { openAI, ddbChat } = dependencies;
+  const { openAI, ddb } = dependencies;
   const { message: userMessage } = JSON.parse(event.body || '');
 
   const input: SendChatInput = {
     userId,
     userMessage,
-    ddbChat,
+    ddb,
     openAI,
   };
 

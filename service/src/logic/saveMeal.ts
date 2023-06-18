@@ -1,11 +1,11 @@
 import { SaveMealInput } from './service';
 
 const saveMeal = async (input: SaveMealInput): Promise<void> => {
-  const { userId, meal, ddbChat } = input;
+  const { userId, meal, ddb } = input;
 
   console.log('User', userId, 'Saving meal: ', meal);
 
-  await ddbChat.addMeal(meal);
+  await ddb.addMeal(meal);
 };
 
 export default saveMeal;
