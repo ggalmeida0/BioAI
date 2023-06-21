@@ -1,8 +1,10 @@
 import {
   ChatCompletionRequestMessage,
+  ChatCompletionRequestMessageFunctionCall,
   ChatCompletionRequestMessageRoleEnum,
 } from 'openai';
 import { Meal } from './meals';
+import { DatedMeal } from '../clients/DynamoDBFacade';
 
 export type Message = { meal?: Meal } & ChatCompletionRequestMessage;
 
@@ -26,14 +28,23 @@ export class UserMessage implements Message {
   }
 }
 
+type AssitantMessageParams = {
+  content: string;
+  meal?: Meal;
+  datedMeals?: DatedMeal[];
+};
+
 export class AssistantMessage implements Message {
   public content: string;
   public role: ChatCompletionRequestMessageRoleEnum =
     ChatCompletionRequestMessageRoleEnum.Assistant;
   public meal?: Meal;
+  public function_call?: ChatCompletionRequestMessageFunctionCall;
+  public datedMeals?: DatedMeal[];
 
-  constructor(content: string, meal?: Meal) {
+  constructor({ content, meal, datedMeals }: AssitantMessageParams) {
     this.content = content;
     this.meal = meal;
+    this.datedMeals = datedMeals;
   }
 }

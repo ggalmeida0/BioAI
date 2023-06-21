@@ -1,7 +1,8 @@
 import { SecretsManager } from 'aws-sdk';
-import { Configuration, OpenAIApi } from 'openai';
+import { Configuration, ChatCompletionFunctions, OpenAIApi } from 'openai';
 import { AssistantMessage, Message, SystemMessage } from '../types/messages';
 import DependencyError from '../errors/DependencyError';
+import { DateTime } from 'luxon';
 
 export const SYSTEM_MESSAGE: SystemMessage = new SystemMessage(`
   You are an assistant whose goal is to help the user to achieve their nutrition goals. Your name is Bio.
@@ -17,10 +18,30 @@ export const INITIAL_GREETING =
 class OpenAI {
   private client: OpenAIApi;
   private model: string;
+  private functions: ChatCompletionFunctions[];
 
   constructor(client: OpenAIApi) {
-    this.model = 'gpt-3.5-turbo';
+    this.model = 'gpt-3.5-turbo-0613';
     this.client = client;
+    const today = DateTime.local().toFormat('yyyy-MM-dd');
+    this.functions = [
+      {
+        name: 'getMeals',
+        description: `Gets the saved meals the user ate for the given dates. For context, today is ${today}`,
+        parameters: {
+          type: 'object',
+          properties: {
+            dates: {
+              type: 'array',
+              items: {
+                type: 'string',
+                description: 'A date in the format YYYY-MM-DD',
+              },
+            },
+          },
+        },
+      },
+    ];
   }
 
   static async init(): Promise<OpenAI> {
@@ -48,6 +69,7 @@ class OpenAI {
       model: this.model,
       messages,
       temperature,
+      functions: this.functions,
     });
 
     const llmResponse = requestResponse.data.choices[0].message;

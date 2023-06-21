@@ -106,6 +106,7 @@ export class BioStack extends cdk.Stack {
         USER_POOL_ID: userPool.userPoolId,
         USER_POOL_CLIENT_ID: client.userPoolClientId,
       },
+      memorySize: 512,
     });
 
     if (isDevEnv) {

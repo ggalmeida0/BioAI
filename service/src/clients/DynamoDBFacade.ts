@@ -12,6 +12,11 @@ export type ChatSession = {
   meals?: Meal[];
 };
 
+export type DatedMeal = {
+  date: string;
+  meals: Meal[];
+};
+
 class DynamoDBFacade {
   private client: DynamoDB.DocumentClient;
   private today: number;
@@ -112,7 +117,7 @@ class DynamoDBFacade {
 
     const meals: Meal[] = ddbResult.Items!.flatMap((record) => record.meals!);
 
-    console.log
+    console.log;
 
     const mealFrequencyMap = meals.reduce<
       Record<string, { freq: number; meal: Meal }>
@@ -127,6 +132,25 @@ class DynamoDBFacade {
     return Object.entries(mealFrequencyMap)
       .sort((meal1, meal2) => meal2[1].freq - meal1[1].freq)
       .flatMap((item) => item[1].meal);
+  }
+
+  async getMealsForDates(dates: number[]): Promise<DatedMeal[]> {
+    const ddbResult = await this.client
+      .batchGet({
+        RequestItems: {
+          [this.table]: {
+            Keys: dates.map((date) => ({ userId: this.userId, date })),
+          },
+        },
+      })
+      .promise();
+    const datedMeals = ddbResult
+      .Responses![this.table].filter((session) => session.meals !== undefined)
+      .map((session) => ({
+        date: DateTime.fromSeconds(session.date).toFormat('yyyy-MM-dd'),
+        meals: session.meals,
+      })) as DatedMeal[];
+    return datedMeals;
   }
 }
 
