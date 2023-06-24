@@ -1,5 +1,4 @@
-import { IconButton } from 'react-native-paper';
-import { AntDesign } from '@expo/vector-icons';
+import { Button } from 'react-native-paper';
 import { Meal } from '../hooks/useChat';
 
 type MealCardProps = {
@@ -24,11 +23,11 @@ const MealCard = ({ meal, onSave }: MealCardProps) => {
         <p>Fat: {meal.breakdown.fat}</p>
         <p>Protein: {meal.breakdown.protein}</p>
       </div>
-      <IconButton
-        icon={() => <AntDesign name="save" size={24} color="black" />}
+      <Button
+        mode="outlined"
         onPress={() => onSave?.(meal)}
         disabled={!meal}
-      />
+      >Save as Meal</Button>
     </>
   );
 };

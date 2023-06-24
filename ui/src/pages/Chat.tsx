@@ -6,6 +6,7 @@ import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import ChatBubble from '../components/ChatBubble';
 import useMeals from '../hooks/useMeals';
 import MealCard from '../components/MealCard';
+import SkeletonContent from 'react-native-skeleton-content';
 
 const User = 'user';
 const Assistant = 'assistant';
@@ -24,7 +25,10 @@ const Chat = () => {
 
   const {
     saveMealMutation: { mutate: saveMeal },
-    getFrequentMealsQuery: { data: frequentMeals },
+    getFrequentMealsQuery: {
+      data: frequentMeals,
+      isLoading: isLoadingFrequentMeals,
+    },
   } = useMeals({ enableGetFrequentMeals: modalVisible });
 
   useEffect(() => {
@@ -77,9 +81,26 @@ const Chat = () => {
             onPress={() => setModalVisible(false)}
           />
         </View>
-        {frequentMeals?.map((meal) => (
-          <MealCard meal={meal} />
-        ))}
+        {isLoadingFrequentMeals
+          ? Array.from({ length: 5 }).map((_, index) => (
+              <SkeletonContent
+                key={`skeleton-${index}`}
+                containerStyle={{ flex: 1, width: '100%' }}
+                isLoading={true}
+                layout={[
+                  { key: 'card', width: '95%', height: 100, margin: 20 },
+                ]}
+              >
+                <View style={{ width: 220, height: 20 }} />
+              </SkeletonContent>
+            ))
+          : frequentMeals?.map((meal) => (
+              <MealCard
+                key={meal.title}
+                meal={meal}
+                onSave={(meal: Meal) => saveMeal(meal)}
+              />
+            ))}
       </Modal>
       <View style={styles.container}>
         <ChatBubble
@@ -113,7 +134,7 @@ const Chat = () => {
             <IconButton
               mode="outlined"
               icon={() => (
-                <MaterialIcons name="food-bank" size={24} color="black" />
+                <MaterialIcons name="history" size={24} color="black" />
               )}
               onPress={() => setModalVisible(true)}
             />
