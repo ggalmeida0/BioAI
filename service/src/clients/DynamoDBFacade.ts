@@ -3,9 +3,7 @@ import { DateTime } from 'luxon';
 import { INITIAL_GREETING } from './OpenAI';
 import { Message } from '../types/messages';
 import { Meal } from '../types/meals';
-import { Session } from 'inspector';
 
-// This is what is persisted in DDB
 export type ChatSession = {
   date: string;
   messages: Message[];
@@ -151,6 +149,29 @@ class DynamoDBFacade {
         meals: session.meals,
       })) as DatedMeal[];
     return datedMeals;
+  }
+
+  async deleteMeal(mealTitle: string, date: number) {
+    const results = await this.getMealsForDates([date]);
+    const meals = results.find((res) => res.date)?.meals;
+    const deleteIndex = meals?.findIndex((meal) => meal.title === mealTitle);
+    const updatedMeals = meals?.filter((_, index) => index !== deleteIndex);
+
+    console.log('updatedMeal', updatedMeals);
+
+    await this.client
+      .update({
+        TableName: this.table,
+        Key: {
+          userId: this.userId,
+          date,
+        },
+        ExpressionAttributeValues: {
+          ':meals': updatedMeals,
+        },
+        UpdateExpression: 'SET meals = :meals',
+      })
+      .promise();
   }
 }
 

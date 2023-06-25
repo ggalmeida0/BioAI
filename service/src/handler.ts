@@ -45,7 +45,7 @@ const routes: Route[] = [
     path: '/getFrequentMeals',
     method: 'GET',
     action: getFrequentMeals,
-  }
+  },
 ];
 
 const getRoute = (path: string, method: string) => {

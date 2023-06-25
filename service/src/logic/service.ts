@@ -24,11 +24,12 @@ export type SaveMealInput = {
   userId: string;
   meal: Meal;
   ddb: DynamoDBFacade;
+  date?: string;
 };
 
 export type GetFrequentMealsInput = {
   ddb: DynamoDBFacade;
-}
+};
 
 type BioServiceAPI = {
   getChat: (
@@ -36,14 +37,14 @@ type BioServiceAPI = {
   ) => Promise<DynamoDB.DocumentClient.ItemList | undefined>;
   sendChat: (input: SendChatInput) => Promise<AssistantMessage>;
   saveMeal: (input: SaveMealInput) => Promise<void>;
-  getFrequentMeals: (input: GetFrequentMealsInput) => Promise<Meal[]>
+  getFrequentMeals: (input: GetFrequentMealsInput) => Promise<Meal[]>;
 };
 
 const serviceAPI: BioServiceAPI = {
   getChat,
   sendChat,
   saveMeal,
-  getFrequentMeals
+  getFrequentMeals,
 };
 
 export default serviceAPI;

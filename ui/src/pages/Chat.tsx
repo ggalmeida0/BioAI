@@ -113,7 +113,7 @@ const Chat = () => {
           message={bioLastMessage}
           isLoading={sendingChat}
         />
-        {bioLastMessage.meal && (
+        {!sendingChat && bioLastMessage.meal && (
           <MealCard
             meal={bioLastMessage.meal}
             onSave={(meal: Meal) => saveMeal(meal)}

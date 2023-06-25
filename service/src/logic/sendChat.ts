@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import { Meal } from '../types/meals';
 import {
   AssistantMessage,
@@ -10,11 +9,12 @@ import { extractJSON } from '../utils/json';
 import { trimTokensToFitInContext } from '../utils/llmToken';
 import { SendChatInput } from './service';
 import MessageUtils from '../utils/messagesUtils';
+import handleLLMFunction from './handleLLMFunction';
 
 const BREAKDOWN_PROMPT = `
 Look at the message to follow, output any nutritional breakdown in JSON format.
 
-Here is the data model of the JSON:
+Here is the format the JSON should have:
 
 {
   title: string;
@@ -51,17 +51,13 @@ const sendChat = async (input: SendChatInput): Promise<AssistantMessage> => {
   const functionCall = rawResponse.function_call;
 
   if (functionCall) {
-    const dates = JSON.parse(functionCall.arguments!).dates.map(
-      (date: string) => DateTime.fromISO(date).toUTC().toSeconds()
+    return handleLLMFunction(
+      functionCall,
+      ddb,
+      openAI,
+      inputContext,
+      userMessage
     );
-
-    const datedMeals = await ddb.getMealsForDates(dates);
-    const message =
-      datedMeals.length > 0
-        ? 'Here are the meals'
-        : "I couldn't find any meals";
-
-    return new AssistantMessage({ content: message, datedMeals });
   }
 
   const { jsonObject: meal, newStr: treatedContent } = extractJSON<Meal>(

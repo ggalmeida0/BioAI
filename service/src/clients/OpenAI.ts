@@ -41,6 +41,23 @@ class OpenAI {
           },
         },
       },
+      {
+        name: 'deleteMeal',
+        description: `It deletes a single meal for a given date. For context, today is ${today}`,
+        parameters: {
+          type: 'object',
+          properties: {
+            date: {
+              type: 'string',
+              description: 'A date in the format YYYY-MM-DD',
+            },
+            mealTitle: {
+              type: 'string',
+              description: 'The title of the meal to be deleted',
+            },
+          },
+        },
+      },
     ];
   }
 
