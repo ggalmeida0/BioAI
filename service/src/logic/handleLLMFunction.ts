@@ -10,8 +10,10 @@ import {
 } from '../types/messages';
 import OpenAI from '../clients/OpenAI';
 import NoOperationFoundError from '../errors/NoOperationFoundError';
+import { Meal } from '../types/meals';
 
 const handleLLMFunction = async (
+  textResponse: string,
   functionCall: ChatCompletionRequestMessageFunctionCall,
   ddb: DynamoDBFacade,
   openAI: OpenAI,
@@ -19,6 +21,8 @@ const handleLLMFunction = async (
   userMessage: UserMessage
 ) => {
   switch (functionCall.name) {
+    case 'createBreakdown':
+      return createBreakdown(textResponse, functionCall);
     case 'getMeals':
       return await getMealsHandler(
         functionCall,
@@ -28,12 +32,20 @@ const handleLLMFunction = async (
         userMessage
       );
     case 'deleteMeal':
-      return await deleteMeal(functionCall, ddb);
+      return await deleteMeal(textResponse, functionCall, ddb);
     default:
       throw new NoOperationFoundError(
         `No LLM function exists with name ${functionCall.name}`
       );
   }
+};
+
+const createBreakdown = (
+  textResponse: string,
+  functionCall: ChatCompletionRequestMessageFunctionCall
+) => {
+  const breakdown = JSON.parse(functionCall.arguments!) as Meal;
+  return new AssistantMessage({ content: textResponse, meal: breakdown });
 };
 
 const getMealsHandler = async (
@@ -62,6 +74,7 @@ const getMealsHandler = async (
 };
 
 const deleteMeal = async (
+  textResponse: string,
   functionCall: ChatCompletionRequestMessageFunctionCall,
   ddb: DynamoDBFacade
 ) => {
@@ -70,7 +83,7 @@ const deleteMeal = async (
   );
   const date = DateTime.fromISO(unformatedDate).toUTC().toSeconds();
   await ddb.deleteMeal(mealTitle, date);
-  return new AssistantMessage({ content: 'Done' });
+  return new AssistantMessage({ content: textResponse });
 };
 
 export default handleLLMFunction;

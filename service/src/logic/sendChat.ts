@@ -1,31 +1,15 @@
-import { Meal } from '../types/meals';
 import {
   AssistantMessage,
   Message,
   SystemMessage,
   UserMessage,
 } from '../types/messages';
-import { extractJSON } from '../utils/json';
 import { trimTokensToFitInContext } from '../utils/llmToken';
 import { SendChatInput } from './service';
 import MessageUtils from '../utils/messagesUtils';
 import handleLLMFunction from './handleLLMFunction';
 
-const BREAKDOWN_PROMPT = `
-Look at the message to follow, output any nutritional breakdown in JSON format.
-
-Here is the format the JSON should have:
-
-{
-  title: string;
-  breakdown: {
-    calories: number;
-    carbs: number;
-    fat: number;
-    protein: number;
-  }
-}
-`;
+const REINFORCEMENT_PROMPT = `In case of ambiguity, assume the user wants to breakdown a meal. Only call functions that are provided`;
 
 const sendChat = async (input: SendChatInput): Promise<AssistantMessage> => {
   const { userId, userMessage: message, openAI, ddb } = input;
@@ -38,7 +22,7 @@ const sendChat = async (input: SendChatInput): Promise<AssistantMessage> => {
 
   const inputContext: Message[] = trimTokensToFitInContext([
     ...chatHistory.flatMap((chat) => MessageUtils.asOpenAIModel(chat.messages)),
-    new SystemMessage(BREAKDOWN_PROMPT),
+    new SystemMessage(REINFORCEMENT_PROMPT),
     userMessage,
   ]);
 
@@ -52,6 +36,7 @@ const sendChat = async (input: SendChatInput): Promise<AssistantMessage> => {
 
   if (functionCall) {
     return handleLLMFunction(
+      rawResponse.content,
       functionCall,
       ddb,
       openAI,
@@ -60,13 +45,7 @@ const sendChat = async (input: SendChatInput): Promise<AssistantMessage> => {
     );
   }
 
-  const { jsonObject: meal, newStr: treatedContent } = extractJSON<Meal>(
-    rawResponse.content
-  );
-
-  console.log('Meal Breakdown: ', meal);
-
-  const llmMessage = new AssistantMessage({ content: treatedContent, meal });
+  const llmMessage = new AssistantMessage({ content: rawResponse.content });
 
   await ddb.addMessages([userMessage, llmMessage]);
 

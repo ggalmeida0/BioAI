@@ -9,6 +9,7 @@ import OpenAI from './clients/OpenAI';
 import { CognitoJwtVerifier } from 'aws-jwt-verify';
 import saveMeal from './routes/saveMeal';
 import getFrequentMeals from './routes/getFrequentMeals';
+import DependencyError from './errors/DependencyError';
 
 export type Dependencies = {
   ddb: DynamoDBFacade;
@@ -89,15 +90,20 @@ exports.handler = async (
 
     const result = await route.action(event, dependencies, userId);
 
+    const headers =
+      process.env['ENV'] === 'prod'
+        ? undefined
+        : // Even though we are setting cors headers in the Function Url, we need it here to have SAM local work https://github.com/aws/aws-sam-cli/issues/4299.
+          // Once the feature is released, we can remove this.
+          {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST',
+            'Access-Control-Allow-Headers': '*',
+          };
+
     return {
       ...(result as object),
-      // Even though we are setting cors headers in the Function Url, we need it here to have SAM local work https://github.com/aws/aws-sam-cli/issues/4299.
-      // Once the feature is released, we can remove this.
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST',
-        'Access-Control-Allow-Headers': '*',
-      },
+      headers,
     };
   } catch (error) {
     console.error(error);
@@ -113,6 +119,13 @@ exports.handler = async (
       return {
         statusCode: 404,
         body: JSON.stringify({ message: 'Route not found' }),
+      };
+    }
+
+    if (error instanceof DependencyError) {
+      return {
+        statusCode: 503,
+        body: JSON.stringify({ message: error.message }),
       };
     }
 

@@ -26,6 +26,38 @@ class OpenAI {
     const today = DateTime.local().toFormat('yyyy-MM-dd');
     this.functions = [
       {
+        name: 'createBreakdown',
+        description: `Creates a nutritional breakdown for a meal`,
+        parameters: {
+          $schema: 'http://json-schema.org/draft-07/schema#',
+          type: 'object',
+          properties: {
+            title: {
+              type: 'string',
+            },
+            breakdown: {
+              type: 'object',
+              properties: {
+                calories: {
+                  type: 'number',
+                },
+                carbs: {
+                  type: 'number',
+                },
+                fat: {
+                  type: 'number',
+                },
+                protein: {
+                  type: 'number',
+                },
+              },
+              required: ['calories', 'carbs', 'fat', 'protein'],
+            },
+          },
+          required: ['title', 'breakdown'],
+        },
+      },
+      {
         name: 'getMeals',
         description: `Gets the saved meals the user ate for the given dates. For context, today is ${today}`,
         parameters: {
@@ -82,18 +114,22 @@ class OpenAI {
     messages: Message[],
     temperature: number = 0.5
   ): Promise<AssistantMessage> {
-    const requestResponse = await this.client.createChatCompletion({
+    const request = {
       model: this.model,
       messages,
       temperature,
       functions: this.functions,
-    });
+    };
+    console.log('Sending createChatCompletion to OpenAI', request);
+    try {
+      const requestResponse = await this.client.createChatCompletion(request);
+      const llmResponse = requestResponse.data.choices[0].message;
 
-    const llmResponse = requestResponse.data.choices[0].message;
-
-    if (!llmResponse) throw new DependencyError('No response from OpenAI');
-
-    return llmResponse as AssistantMessage;
+      return llmResponse as AssistantMessage;
+    } catch {
+      console.error('Open AI createChatCompletion failed');
+      throw new DependencyError('An internal dependency failed');
+    }
   }
 }
 
