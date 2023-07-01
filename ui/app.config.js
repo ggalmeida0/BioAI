@@ -1,6 +1,7 @@
 const env = process.env.EXPO_ENV;
 
 const apiEndpoint = env === 'prod' ? 'https://uudihltgbu4wqxm3nckfe7ylgi0kzccx.lambda-url.us-east-2.on.aws' : 'http://localhost:3000';
+const authRedirectUri = env === 'prod' ? 'https://master.d3mqj86iwprlmp.amplifyapp.com/' : 'http://localhost:19006/'
 
 export default {
   "expo": {
@@ -31,7 +32,8 @@ export default {
       "favicon": "./assets/favicon.png"
     },
     extra: {
-      apiEndpoint
+      apiEndpoint,
+      authRedirectUri
     }
   }
 }

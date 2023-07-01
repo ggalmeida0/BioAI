@@ -8,13 +8,11 @@ const Auth = {
   oauth: {
     domain: 'bio-ai.auth.us-east-2.amazoncognito.com',
     scope: ['email', 'openid'],
-    redirectSignIn: 'http://localhost:19006/',
-    redirectSignOut: 'http://localhost:19006/',
+    redirectSignIn: Constants.expoConfig!.extra!.authRedirectUri,
+    redirectSignOut: Constants.expoConfig!.extra!.authRedirectUri,
     responseType: 'code',
   },
 };
-
-console.log(Constants.expoConfig!.extra!.apiEndpoint);
 
 const API = {
   endpoints: [
