@@ -1,0 +1,15 @@
+{
+  "name": "bio",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd service && npm run prod-build && cd ../ui && npm run build"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run build"
+    }
+  }
+}

@@ -147,11 +147,14 @@ export class BioStack extends cdk.Stack {
       },
     });
 
-    const callbackUrl = 'http://localhost:19006/';
+    const callbackUrls = [
+      'http://localhost:19006/',
+      'https://master.d3mqj86iwprlmp.amplifyapp.com/',
+    ];
     const client = userPool.addClient('BioAuthClient', {
       supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE],
       oAuth: {
-        callbackUrls: [callbackUrl],
+        callbackUrls: callbackUrls,
       },
     });
     const provider = new cdk.aws_cognito.UserPoolIdentityProviderGoogle(
