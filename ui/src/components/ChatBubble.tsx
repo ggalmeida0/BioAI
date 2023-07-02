@@ -12,16 +12,13 @@ type ChatBubbleProps = {
 };
 
 const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
-  const [completedTyping, setCompletedTyping] = useState(false);
   const [displayResponse, setDisplayResponse] = useState('');
 
   useEffect(() => {
     if (!message.content) {
-      setCompletedTyping(true);
       setDisplayResponse('');
       return;
     }
-    setCompletedTyping(false);
 
     let i = 0;
 
@@ -32,7 +29,6 @@ const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
 
       if (i > message.content!.length) {
         clearInterval(intervalId);
-        setCompletedTyping(true);
       }
     }, 10);
 

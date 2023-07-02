@@ -3,7 +3,7 @@ import awsconfig from './aws-config';
 import { DefaultTheme, PaperProvider } from 'react-native-paper';
 import Chat from './src/pages/Chat';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import useAuth from './src/hooks/useAuth';
 import AuthPage from './src/pages/AuthPage';
@@ -35,7 +35,6 @@ const App = () => {
 
 const AuthenticatedApp = () => {
   const { userAuthContext } = useAuth(queryClient);
-
   return <>{userAuthContext.isSuccess ? <Chat /> : <AuthPage />}</>;
 };
 

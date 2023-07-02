@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Button,
   IconButton,
   Snackbar,
@@ -13,6 +14,7 @@ import ChatBubble from '../components/ChatBubble';
 import useMeals from '../hooks/useMeals';
 import MealCard from '../components/MealCard';
 import SkeletonContent from 'react-native-skeleton-content';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const User = 'user';
 const Assistant = 'assistant';
@@ -22,19 +24,29 @@ const Chat = () => {
   const [chat, setChat] = useState<Message[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [snackbarVisible, setSnackbarVisible] = useState<boolean>(false);
+  const [errorOcurred, setErrorSnackbar] = useState<boolean>(false);
 
   const {
-    messagesContext: { data: savedChatMessages },
-    senderContext: { mutate: sendChat, isLoading: sendingChat },
+    messagesContext: { data: savedChatMessages, isError: getChatError },
+    senderContext: {
+      mutate: sendChat,
+      isLoading: sendingChat,
+      isError: sendChatError,
+    },
   } = useChat({
     onSendSuccess: (data: Message) => setChat([...chat, data]),
   });
 
   const {
-    saveMealMutation: { mutate: saveMeal, isLoading: savingMeal },
+    saveMealMutation: {
+      mutate: saveMeal,
+      isLoading: savingMeal,
+      isError: saveMealError,
+    },
     getFrequentMealsQuery: {
       data: frequentMeals,
       isLoading: isLoadingFrequentMeals,
+      isError: getFrequentMealsError,
     },
   } = useMeals({
     enableGetFrequentMeals: modalVisible,
@@ -49,6 +61,25 @@ const Chat = () => {
       setChat(savedChatMessages[savedChatMessages.length - 1].messages);
     }
   }, [savedChatMessages]);
+
+  useEffect(() => {
+    if (
+      getChatError ||
+      sendChatError ||
+      saveMealError ||
+      getFrequentMealsError
+    ) {
+      setChat([
+        ...chat,
+        {
+          content:
+            'Something went wrong while I was talking to the server. You can try asking me again or in a different way.',
+          role: Assistant,
+        },
+      ]);
+      setErrorSnackbar(true);
+    }
+  }, [getChatError, sendChatError, saveMealError, getFrequentMealsError]);
 
   const handleSend = () => {
     setChat([...chat, { content: input, role: User }]);
@@ -95,28 +126,19 @@ const Chat = () => {
           />
         </View>
         <ScrollView>
-          {isLoadingFrequentMeals
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <SkeletonContent
-                  key={`skeleton-${index}`}
-                  containerStyle={{ flex: 1, width: '100%' }}
-                  isLoading={true}
-                  layout={[
-                    { key: 'card', width: '95%', height: 100, margin: 20 },
-                  ]}
-                  boneColor="#CCCCCC"
-                  highlightColor="#EEEEEE"
-                >
-                  <View style={{ width: 220, height: 20 }} />
-                </SkeletonContent>
-              ))
-            : frequentMeals?.map((meal) => (
-                <MealCard
-                  key={meal.title}
-                  meal={meal}
-                  onSave={(meal: Meal) => saveMeal(meal)}
-                />
-              ))}
+          {isLoadingFrequentMeals ? (
+            <View style={styles.centerLoadingContainer}>
+              <ActivityIndicator />
+            </View>
+          ) : (
+            frequentMeals?.map((meal) => (
+              <MealCard
+                key={meal.title}
+                meal={meal}
+                onSave={(meal: Meal) => saveMeal(meal)}
+              />
+            ))
+          )}
         </ScrollView>
       </Modal>
       <Snackbar
@@ -124,6 +146,12 @@ const Chat = () => {
         onDismiss={() => setSnackbarVisible(false)}
       >
         Meal saved!
+      </Snackbar>
+      <Snackbar
+        visible={errorOcurred}
+        onDismiss={() => setErrorSnackbar(false)}
+      >
+        Error ocurred
       </Snackbar>
       <View style={styles.container}>
         <ChatBubble
@@ -200,6 +228,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'flex-end',
+  },
+  centerLoadingContainer: {
+    display: 'flex',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
