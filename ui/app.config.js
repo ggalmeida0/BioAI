@@ -9,9 +9,6 @@ const authRedirectUri =
     ? 'https://master.d3mqj86iwprlmp.amplifyapp.com/'
     : 'http://localhost:19006/';
 
-console.log('API Endpoint: ', apiEndpoint);
-console.log('Auth Redirect URI', authRedirectUri);
-
 export default {
   expo: {
     name: 'bio',

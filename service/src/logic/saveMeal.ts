@@ -1,9 +1,10 @@
 import { DateTime } from 'luxon';
 import { validateDateFormat } from '../utils/date';
 import { SaveMealInput } from './service';
+import { AssistantMessage, SystemMessage } from '../types/messages';
 
-const saveMeal = async (input: SaveMealInput): Promise<void> => {
-  const { userId, meal, ddb, date } = input;
+const saveMeal = async (input: SaveMealInput): Promise<AssistantMessage> => {
+  const { userId, meal, ddb, date, openAI } = input;
 
   const validatedDate = validateDateFormat(date);
   const formatedDate =
@@ -13,6 +14,17 @@ const saveMeal = async (input: SaveMealInput): Promise<void> => {
 
   // @ts-ignore TS acting weird saying formatedDate could be "" when it cannot
   await ddb.addMeal(meal, formatedDate);
+
+  const LlmResponse = await openAI.sendChat(
+    [
+      new SystemMessage(
+        `Inform the user you just saved the meal: ${JSON.stringify(meal)}`
+      ),
+    ],
+    false
+  );
+  await ddb.addMessages([LlmResponse]);
+  return LlmResponse;
 };
 
 export default saveMeal;

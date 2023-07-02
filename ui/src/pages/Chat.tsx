@@ -1,5 +1,11 @@
-import { Button, IconButton, TextInput } from 'react-native-paper';
-import { StyleSheet, Modal, View } from 'react-native';
+import {
+  Button,
+  IconButton,
+  Snackbar,
+  Text,
+  TextInput,
+} from 'react-native-paper';
+import { StyleSheet, Modal, View, ScrollView } from 'react-native';
 import useChat, { Meal, Message } from '../hooks/useChat';
 import { useEffect, useMemo, useState } from 'react';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
@@ -15,6 +21,7 @@ const Chat = () => {
   const [input, setInput] = useState('');
   const [chat, setChat] = useState<Message[]>([]);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [snackbarVisible, setSnackbarVisible] = useState<boolean>(false);
 
   const {
     messagesContext: { data: savedChatMessages },
@@ -24,12 +31,18 @@ const Chat = () => {
   });
 
   const {
-    saveMealMutation: { mutate: saveMeal },
+    saveMealMutation: { mutate: saveMeal, isLoading: savingMeal },
     getFrequentMealsQuery: {
       data: frequentMeals,
       isLoading: isLoadingFrequentMeals,
     },
-  } = useMeals({ enableGetFrequentMeals: modalVisible });
+  } = useMeals({
+    enableGetFrequentMeals: modalVisible,
+    onSaveSuccess: (newChat: Message) => {
+      setSnackbarVisible(true);
+      setChat([...chat, newChat]);
+    },
+  });
 
   useEffect(() => {
     if (savedChatMessages) {
@@ -64,6 +77,8 @@ const Chat = () => {
     [chat]
   );
 
+  console.log(isLoadingFrequentMeals);
+
   return (
     <>
       <Modal
@@ -81,27 +96,38 @@ const Chat = () => {
             onPress={() => setModalVisible(false)}
           />
         </View>
-        {isLoadingFrequentMeals
-          ? Array.from({ length: 5 }).map((_, index) => (
-              <SkeletonContent
-                key={`skeleton-${index}`}
-                containerStyle={{ flex: 1, width: '100%' }}
-                isLoading={true}
-                layout={[
-                  { key: 'card', width: '95%', height: 100, margin: 20 },
-                ]}
-              >
-                <View style={{ width: 220, height: 20 }} />
-              </SkeletonContent>
-            ))
-          : frequentMeals?.map((meal) => (
-              <MealCard
-                key={meal.title}
-                meal={meal}
-                onSave={(meal: Meal) => saveMeal(meal)}
-              />
-            ))}
+        <ScrollView>
+          {isLoadingFrequentMeals
+            ? Array.from({ length: 5 }).map((_, index) => (
+                <View>
+                  <Text>dfdff</Text>
+                  <SkeletonContent
+                    key={`skeleton-${index}`}
+                    containerStyle={{ flex: 1, width: '100%' }}
+                    isLoading={true}
+                    layout={[
+                      { key: 'card', width: '95%', height: 100, margin: 20 },
+                    ]}
+                  >
+                    <View style={{ width: 220, height: 20 }} />
+                  </SkeletonContent>
+                </View>
+              ))
+            : frequentMeals?.map((meal) => (
+                <MealCard
+                  key={meal.title}
+                  meal={meal}
+                  onSave={(meal: Meal) => saveMeal(meal)}
+                />
+              ))}
+        </ScrollView>
       </Modal>
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+      >
+        Meal saved!
+      </Snackbar>
       <View style={styles.container}>
         <ChatBubble
           role={User}
@@ -111,9 +137,9 @@ const Chat = () => {
         <ChatBubble
           role={Assistant}
           message={bioLastMessage}
-          isLoading={sendingChat}
+          isLoading={sendingChat || savingMeal}
         />
-        {!sendingChat && bioLastMessage.meal && (
+        {!sendingChat && bioLastMessage.meal && !savingMeal && (
           <MealCard
             meal={bioLastMessage.meal}
             onSave={(meal: Meal) => saveMeal(meal)}

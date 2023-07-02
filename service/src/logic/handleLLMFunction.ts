@@ -22,7 +22,7 @@ const handleLLMFunction = async (
 ) => {
   switch (functionCall.name) {
     case 'createBreakdown':
-      return createBreakdown(textResponse, functionCall);
+      return createBreakdown(textResponse, functionCall, ddb, userMessage);
     case 'getMeals':
       return await getMealsHandler(
         functionCall,
@@ -40,12 +40,19 @@ const handleLLMFunction = async (
   }
 };
 
-const createBreakdown = (
+const createBreakdown = async (
   textResponse: string,
-  functionCall: ChatCompletionRequestMessageFunctionCall
+  functionCall: ChatCompletionRequestMessageFunctionCall,
+  ddb: DynamoDBFacade,
+  userMessage: UserMessage
 ) => {
   const breakdown = JSON.parse(functionCall.arguments!) as Meal;
-  return new AssistantMessage({ content: textResponse, meal: breakdown });
+  const llmResponse = new AssistantMessage({
+    content: textResponse,
+    meal: breakdown,
+  });
+  await ddb.addMessages([userMessage, llmResponse]);
+  return llmResponse;
 };
 
 const getMealsHandler = async (

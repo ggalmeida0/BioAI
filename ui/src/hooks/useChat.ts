@@ -26,7 +26,7 @@ type NutritionBreakdown = {
 };
 
 export type Message = {
-  content: string;
+  content?: string;
   role: string;
   meal?: Meal;
 };

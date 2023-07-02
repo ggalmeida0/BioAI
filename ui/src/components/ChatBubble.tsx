@@ -16,16 +16,21 @@ const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
   const [displayResponse, setDisplayResponse] = useState('');
 
   useEffect(() => {
+    if (!message.content) {
+      setCompletedTyping(true);
+      setDisplayResponse('');
+      return;
+    }
     setCompletedTyping(false);
 
     let i = 0;
 
     const intervalId = setInterval(() => {
-      setDisplayResponse(message.content.slice(0, i));
+      setDisplayResponse(message.content!.slice(0, i));
 
       i++;
 
-      if (i > message.content.length) {
+      if (i > message.content!.length) {
         clearInterval(intervalId);
         setCompletedTyping(true);
       }

@@ -7,7 +7,7 @@ const saveMeal = async (
   dependencies: Dependencies,
   userId: string
 ): Promise<APIGatewayProxyResultV2> => {
-  const { ddb } = dependencies;
+  const { ddb, openAI } = dependencies;
   const { meal, date } = JSON.parse(event.body || '');
 
   const input: SaveMealInput = {
@@ -15,6 +15,7 @@ const saveMeal = async (
     meal,
     ddb,
     date,
+    openAI,
   };
 
   const result = await serviceAPI.saveMeal(input);

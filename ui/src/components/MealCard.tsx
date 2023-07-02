@@ -23,11 +23,9 @@ const MealCard = ({ meal, onSave }: MealCardProps) => {
         <p>Fat: {meal.breakdown.fat}</p>
         <p>Protein: {meal.breakdown.protein}</p>
       </div>
-      <Button
-        mode="outlined"
-        onPress={() => onSave?.(meal)}
-        disabled={!meal}
-      >Save as Meal</Button>
+      <Button mode="outlined" onPress={() => onSave?.(meal)} disabled={!meal}>
+        Save as Meal
+      </Button>
     </>
   );
 };

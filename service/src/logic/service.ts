@@ -25,6 +25,7 @@ export type SaveMealInput = {
   meal: Meal;
   ddb: DynamoDBFacade;
   date?: string;
+  openAI: OpenAI;
 };
 
 export type GetFrequentMealsInput = {
@@ -36,7 +37,7 @@ type BioServiceAPI = {
     input: GetChatInput
   ) => Promise<DynamoDB.DocumentClient.ItemList | undefined>;
   sendChat: (input: SendChatInput) => Promise<AssistantMessage>;
-  saveMeal: (input: SaveMealInput) => Promise<void>;
+  saveMeal: (input: SaveMealInput) => Promise<AssistantMessage>;
   getFrequentMeals: (input: GetFrequentMealsInput) => Promise<Meal[]>;
 };
 

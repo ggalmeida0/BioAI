@@ -112,13 +112,14 @@ class OpenAI {
 
   async sendChat(
     messages: Message[],
+    enableFunctions: boolean = true,
     temperature: number = 0.5
   ): Promise<AssistantMessage> {
     const request = {
       model: this.model,
       messages,
       temperature,
-      functions: this.functions,
+      functions: enableFunctions ? this.functions : undefined,
     };
     console.log('Sending createChatCompletion to OpenAI', request);
     try {
