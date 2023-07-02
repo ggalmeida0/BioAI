@@ -77,8 +77,6 @@ const Chat = () => {
     [chat]
   );
 
-  console.log(isLoadingFrequentMeals);
-
   return (
     <>
       <Modal
@@ -99,19 +97,18 @@ const Chat = () => {
         <ScrollView>
           {isLoadingFrequentMeals
             ? Array.from({ length: 5 }).map((_, index) => (
-                <View>
-                  <Text>dfdff</Text>
-                  <SkeletonContent
-                    key={`skeleton-${index}`}
-                    containerStyle={{ flex: 1, width: '100%' }}
-                    isLoading={true}
-                    layout={[
-                      { key: 'card', width: '95%', height: 100, margin: 20 },
-                    ]}
-                  >
-                    <View style={{ width: 220, height: 20 }} />
-                  </SkeletonContent>
-                </View>
+                <SkeletonContent
+                  key={`skeleton-${index}`}
+                  containerStyle={{ flex: 1, width: '100%' }}
+                  isLoading={true}
+                  layout={[
+                    { key: 'card', width: '95%', height: 100, margin: 20 },
+                  ]}
+                  boneColor="#CCCCCC"
+                  highlightColor="#EEEEEE"
+                >
+                  <View style={{ width: 220, height: 20 }} />
+                </SkeletonContent>
               ))
             : frequentMeals?.map((meal) => (
                 <MealCard
