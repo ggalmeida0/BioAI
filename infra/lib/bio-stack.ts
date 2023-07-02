@@ -98,7 +98,7 @@ export class BioStack extends cdk.Stack {
         PolicyStatement.fromJson({
           Effect: Effect.ALLOW,
           Action: ['dynamodb:Query', 'dynamodb:UpdateItem'],
-          Resource: 'arn:aws:dynamodb:*:*:table/UserChats',
+          Resource: 'arn:aws:dynamodb:*:*:table/UserSessions',
         }),
       ],
       timeout: cdk.Duration.seconds(900),
@@ -150,6 +150,7 @@ export class BioStack extends cdk.Stack {
     const callbackUrls = [
       'http://localhost:19006/',
       'https://master.d3mqj86iwprlmp.amplifyapp.com/',
+      'exp://192.168.1.243:19000',
     ];
     const client = userPool.addClient('BioAuthClient', {
       supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE],

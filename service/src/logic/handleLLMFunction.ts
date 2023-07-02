@@ -11,6 +11,8 @@ import {
 import OpenAI from '../clients/OpenAI';
 import NoOperationFoundError from '../errors/NoOperationFoundError';
 import { Meal } from '../types/meals';
+import math from 'mathjs';
+import { MathExpression } from 'aws-sdk/clients/iotanalytics';
 
 const handleLLMFunction = async (
   textResponse: string,
@@ -47,9 +49,16 @@ const createBreakdown = async (
   userMessage: UserMessage
 ) => {
   const breakdown = JSON.parse(functionCall.arguments!) as Meal;
+
+  const evaluatedBreakdown = Object.fromEntries(
+    Object.entries(breakdown.breakdown).map((entry) =>
+      math.evaluate(entry[1] as MathExpression)
+    )
+  ) as Meal;
+
   const llmResponse = new AssistantMessage({
     content: textResponse,
-    meal: breakdown,
+    meal: evaluatedBreakdown,
   });
   await ddb.addMessages([userMessage, llmResponse]);
   return llmResponse;
