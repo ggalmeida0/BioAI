@@ -71,6 +71,7 @@ class OpenAI {
               },
             },
           },
+          required: ['dates'],
         },
       },
       {
@@ -88,6 +89,7 @@ class OpenAI {
               description: 'The title of the meal to be deleted',
             },
           },
+          required: ['date', 'mealTitle'],
         },
       },
     ];

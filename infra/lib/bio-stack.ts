@@ -97,7 +97,11 @@ export class BioStack extends cdk.Stack {
       initialPolicy: [
         PolicyStatement.fromJson({
           Effect: Effect.ALLOW,
-          Action: ['dynamodb:Query', 'dynamodb:UpdateItem'],
+          Action: [
+            'dynamodb:Query',
+            'dynamodb:UpdateItem',
+            'dynamodb:BatchGetItem',
+          ],
           Resource: 'arn:aws:dynamodb:*:*:table/UserSessions',
         }),
       ],
@@ -121,6 +125,7 @@ export class BioStack extends cdk.Stack {
           allowedHeaders: ['*'],
         },
       });
+      lambda.addEnvironment('ENV', 'prod');
     }
 
     const openAiApiKey = cdk.aws_secretsmanager.Secret.fromSecretNameV2(

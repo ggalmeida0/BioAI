@@ -9,7 +9,7 @@ const expoGoAuthRedirectUri = `exp://${Constants.manifest?.debuggerHost}`;
 const webLocalAuthRedirectUri = 'http://localhost:19006/';
 
 const endpoint =
-  env === 'prod' || Platform.OS === 'web'
+  env === 'prod' || Platform.OS === 'ios'
     ? prodApiEndpoint
     : webLocalApiEndpoint;
 

@@ -11,7 +11,7 @@ import {
 import OpenAI from '../clients/OpenAI';
 import NoOperationFoundError from '../errors/NoOperationFoundError';
 import { Meal } from '../types/meals';
-import math from 'mathjs';
+import { evaluate } from 'mathjs';
 import { MathExpression } from 'aws-sdk/clients/iotanalytics';
 
 const handleLLMFunction = async (
@@ -34,7 +34,7 @@ const handleLLMFunction = async (
         userMessage
       );
     case 'deleteMeal':
-      return await deleteMeal(textResponse, functionCall, ddb);
+      return await deleteMeal(functionCall, ddb, openAI, userMessage);
     default:
       throw new NoOperationFoundError(
         `No LLM function exists with name ${functionCall.name}`
@@ -48,13 +48,17 @@ const createBreakdown = async (
   ddb: DynamoDBFacade,
   userMessage: UserMessage
 ) => {
-  const breakdown = JSON.parse(functionCall.arguments!) as Meal;
+  const breakdown = eval(`(${functionCall.arguments!})`);
 
-  const evaluatedBreakdown = Object.fromEntries(
-    Object.entries(breakdown.breakdown).map((entry) =>
-      math.evaluate(entry[1] as MathExpression)
-    )
-  ) as Meal;
+  const evaluatedBreakdown = {
+    title: breakdown.title,
+    breakdown: Object.fromEntries(
+      Object.entries(breakdown.breakdown).map((entry) => [
+        entry[0],
+        evaluate(String(entry[1])),
+      ])
+    ),
+  } as Meal;
 
   const llmResponse = new AssistantMessage({
     content: textResponse,
@@ -90,16 +94,26 @@ const getMealsHandler = async (
 };
 
 const deleteMeal = async (
-  textResponse: string,
   functionCall: ChatCompletionRequestMessageFunctionCall,
-  ddb: DynamoDBFacade
+  ddb: DynamoDBFacade,
+  openAI: OpenAI,
+  userMessage: UserMessage
 ) => {
   const { date: unformatedDate, mealTitle } = JSON.parse(
     functionCall.arguments!
   );
   const date = DateTime.fromISO(unformatedDate).toUTC().toSeconds();
   await ddb.deleteMeal(mealTitle, date);
-  return new AssistantMessage({ content: textResponse });
+  const llmMessage = await openAI.sendChat([
+    userMessage,
+    new SystemMessage(
+      `Bio deleted meal ${mealTitle} on ${DateTime.fromSeconds(
+        date
+      ).toISODate()}. Now respond appropriately to the user`
+    ),
+  ]);
+  await ddb.addMessages([userMessage, llmMessage]);
+  return llmMessage;
 };
 
 export default handleLLMFunction;
