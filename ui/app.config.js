@@ -14,6 +14,7 @@ export default {
     assetBundlePatterns: ['**/*'],
     ios: {
       supportsTablet: true,
+      bundleIdentifier: 'bio.ios',
     },
     android: {
       adaptiveIcon: {
@@ -29,6 +30,9 @@ export default {
       prodApiEndpoint: 'https://uudihltgbu4wqxm3nckfe7ylgi0kzccx.lambda-url.us-east-2.on.aws',
       webLocalApiEndpoint: 'http://localhost:3000',
       prodAuthRedirectUri: 'https://master.d3mqj86iwprlmp.amplifyapp.com/',
+      eas: {
+        projectId: "ea90ed3d-b94c-43c6-990a-d5e9decd48ff",
+      }
     },
   },
 };
