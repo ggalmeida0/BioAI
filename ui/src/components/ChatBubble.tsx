@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Avatar } from 'react-native-paper';
 import { AntDesign } from '@expo/vector-icons';
@@ -12,9 +12,9 @@ import html from 'rehype-stringify';
 import { Message } from '../hooks/useChat';
 
 type ChatBubbleProps = {
-  role: 'assistant' | 'user';
+  role: string;
   message: Message;
-  isLoading: boolean;
+  isLoading?: boolean;
 };
 
 const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
@@ -55,42 +55,66 @@ const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
     return () => clearInterval(intervalId);
   }, [message.content]);
 
-  const avatarImg = useMemo(
-    () =>
-      role === 'assistant' ? (
-        <Avatar.Image source={require('../../assets/bio.png')} style={styles.bioAvatar} size={84}/>
-        ) : (
-          <AntDesign name="user" size={24} color="black" />
-        ),
-      [role]
-    );
+  const avatarImg = useMemo(() =>
+    role === 'assistant' ? (
+      <Avatar.Image source={require('../../assets/bio.png')} style={styles.bioAvatar} size={84} />
+    ) : (
+      <AntDesign name="user" size={24} color="black" />
+    ),
+    [role]
+  );
 
-    return (
-      <View style={styles.message}>
-        <View style={styles.avatar}>
-          {avatarImg}
-          {isLoading && <ActivityIndicator />}
-        </View>
-        {!isLoading && (
-          <HTML
-            source={{
-              html: htmlResponse,
-            }}
-          />
-        )}
+  const bubbleStyle = role === 'assistant' ? styles.assistantBubble : styles.userBubble;
+  const textStyle = role === 'assistant' ? styles.assistantText : styles.userText;
+
+  return (
+    <View style={[styles.message, bubbleStyle]}>
+      <View style={styles.avatar}>
+        {avatarImg}
+        {isLoading && <ActivityIndicator />}
       </View>
-    );
-  };
+      {!isLoading && (
+        <HTML
+          source={{
+            html: htmlResponse,
+          }}
+        />
+      )}
+    </View>
+  );
+};
 
-  const styles = StyleSheet.create({
-    message: {
-      display: 'flex',
-      alignItems: 'center',
-      textAlign: 'center',
-      margin: 10,
-    },
-    avatar: { display: 'flex', flexDirection: 'row', gap: 10},
-    bioAvatar: { backgroundColor: 'transparent'},
-  });
+const styles = StyleSheet.create({
+  message: {
+    display: 'flex',
+    alignItems: 'center',
+    textAlign: 'center',
+    margin: 10,
+    borderRadius: 8,
+    padding: 8,
+  },
+  userBubble: {
+    backgroundColor: '#333',
+    alignSelf: 'flex-end',
+  },
+  assistantBubble: {
+    backgroundColor: '#f0f0f0',
+    alignSelf: 'flex-start',
+  },
+  userText: {
+    color: '#fff',
+  },
+  assistantText: {
+    color: '#000',
+  },
+  avatar: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: 10,
+  },
+  bioAvatar: {
+    backgroundColor: 'transparent',
+  },
+});
 
 export default ChatBubble;

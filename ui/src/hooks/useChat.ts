@@ -29,6 +29,7 @@ export type Message = {
   content?: string;
   role: string;
   meal?: Meal;
+  isLoading?: boolean
 };
 
 export type ChatContext = {
