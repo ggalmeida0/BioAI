@@ -58,38 +58,39 @@ const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
   const avatarImg = useMemo(
     () =>
       role === 'assistant' ? (
-        <Avatar.Image source={require('../../assets/bio.png')} />
-      ) : (
-        <AntDesign name="user" size={24} color="black" />
-      ),
-    [role]
-  );
+        <Avatar.Image source={require('../../assets/bio.png')} style={styles.bioAvatar} size={84}/>
+        ) : (
+          <AntDesign name="user" size={24} color="black" />
+        ),
+      [role]
+    );
 
-  return (
-    <View style={styles.message}>
-      <View style={styles.avatar}>
-        {avatarImg}
-        {isLoading && <ActivityIndicator />}
+    return (
+      <View style={styles.message}>
+        <View style={styles.avatar}>
+          {avatarImg}
+          {isLoading && <ActivityIndicator />}
+        </View>
+        {!isLoading && (
+          <HTML
+            source={{
+              html: htmlResponse,
+            }}
+          />
+        )}
       </View>
-      {!isLoading && (
-        <HTML
-          source={{
-            html: htmlResponse,
-          }}
-        />
-      )}
-    </View>
-  );
-};
+    );
+  };
 
-const styles = StyleSheet.create({
-  message: {
-    display: 'flex',
-    alignItems: 'center',
-    textAlign: 'center',
-    margin: 10,
-  },
-  avatar: { display: 'flex', flexDirection: 'row', gap: 10 },
-});
+  const styles = StyleSheet.create({
+    message: {
+      display: 'flex',
+      alignItems: 'center',
+      textAlign: 'center',
+      margin: 10,
+    },
+    avatar: { display: 'flex', flexDirection: 'row', gap: 10},
+    bioAvatar: { backgroundColor: 'transparent'},
+  });
 
 export default ChatBubble;
