@@ -13,8 +13,7 @@ import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import ChatBubble from '../components/ChatBubble';
 import useMeals from '../hooks/useMeals';
 import MealCard from '../components/MealCard';
-import SkeletonContent from 'react-native-skeleton-content';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import { Platform } from 'react-native';
 
 const User = 'user';
 const Assistant = 'assistant';
@@ -173,6 +172,7 @@ const Chat = () => {
         <View style={styles.inputContainer}>
           <View style={styles.inputRow}>
             <TextInput
+            style={styles.input}
               value={input}
               mode="outlined"
               onChangeText={setInput}
@@ -213,11 +213,14 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
+    width: Platform.OS === 'ios' ? '100%' : undefined,
   },
   inputRow: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    width: Platform.OS === 'ios' ? '100%' : undefined,
   },
   button: {
     width: '100%',
@@ -228,6 +231,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'flex-end',
+    marginTop: 20,
   },
   centerLoadingContainer: {
     display: 'flex',
@@ -236,6 +240,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  input: { 
+    width: Platform.OS === 'ios' ? '80%' : undefined,
+  }
 });
 
 export default Chat;

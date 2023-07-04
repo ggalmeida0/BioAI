@@ -2,7 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Avatar } from 'react-native-paper';
 import { AntDesign } from '@expo/vector-icons';
-import ReactMarkdown from 'react-markdown';
+import HTML from 'react-native-render-html';
+import { unified } from 'unified';
+import markdown from 'remark-parse';
+import remark2rehype from 'remark-rehype';
+import doc from 'rehype-document';
+import format from 'rehype-format';
+import html from 'rehype-stringify';
 import { Message } from '../hooks/useChat';
 
 type ChatBubbleProps = {
@@ -12,7 +18,21 @@ type ChatBubbleProps = {
 };
 
 const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
+  const [htmlResponse, setHtmlResponse] = useState('');
   const [displayResponse, setDisplayResponse] = useState('');
+
+  useEffect(() => {
+    unified()
+      .use(markdown)
+      .use(remark2rehype)
+      .use(doc)
+      .use(format)
+      .use(html)
+      .process(displayResponse, (err, file) => {
+        if (err) throw err;
+        setHtmlResponse(String(file));
+      });
+  }, [displayResponse]);
 
   useEffect(() => {
     if (!message.content) {
@@ -51,7 +71,13 @@ const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
         {avatarImg}
         {isLoading && <ActivityIndicator />}
       </View>
-      {!isLoading && <ReactMarkdown>{displayResponse}</ReactMarkdown>}
+      {!isLoading && (
+        <HTML
+          source={{
+            html: htmlResponse,
+          }}
+        />
+      )}
     </View>
   );
 };

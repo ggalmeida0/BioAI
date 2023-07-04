@@ -1,5 +1,6 @@
-import { Button } from 'react-native-paper';
+import { Button, Text } from 'react-native-paper';
 import { Meal } from '../hooks/useChat';
+import { View } from 'react-native';
 
 type MealCardProps = {
   meal: Meal;
@@ -9,20 +10,13 @@ type MealCardProps = {
 const MealCard = ({ meal, onSave }: MealCardProps) => {
   return (
     <>
-      <div
-        style={{
-          border: '1px solid black',
-          margin: '10px',
-          padding: '10px',
-          borderRadius: '5px',
-        }}
-      >
-        <h2>{meal.title}</h2>
-        <p>Calories: {meal.breakdown.calories}</p>
-        <p>Carbs: {meal.breakdown.carbs}</p>
-        <p>Fat: {meal.breakdown.fat}</p>
-        <p>Protein: {meal.breakdown.protein}</p>
-      </div>
+      <View>
+        <Text variant="displayMedium">{meal.title}</Text>
+        <Text>Calories: {meal.breakdown.calories}</Text>
+        <Text>Carbs: {meal.breakdown.carbs}</Text>
+        <Text>Fat: {meal.breakdown.fat}</Text>
+        <Text>Protein: {meal.breakdown.protein}</Text>
+      </View>
       <Button mode="outlined" onPress={() => onSave?.(meal)} disabled={!meal}>
         Save as Meal
       </Button>

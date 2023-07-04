@@ -12,7 +12,6 @@ import OpenAI from '../clients/OpenAI';
 import NoOperationFoundError from '../errors/NoOperationFoundError';
 import { Meal } from '../types/meals';
 import { evaluate } from 'mathjs';
-import { MathExpression } from 'aws-sdk/clients/iotanalytics';
 
 const handleLLMFunction = async (
   textResponse: string,
