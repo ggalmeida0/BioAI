@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { ActivityIndicator, Button, IconButton, Snackbar, Text, TextInput } from 'react-native-paper';
 import { StyleSheet, Modal, View, ScrollView } from 'react-native';
 import useChat, { Meal, Message } from '../hooks/useChat';
@@ -59,7 +59,7 @@ const Chat = () => {
   }, [getChatError, sendChatError, saveMealError, getFrequentMealsError]);
 
   const handleSend = () => {
-    const newMessage: Message = { content: input, role: User, isLoading: true };
+    const newMessage: Message = { content: input, role: User, isLoading: false };
     setChat((prevChat) => [...prevChat, newMessage]);
     setInput('');
     sendChat(input);
