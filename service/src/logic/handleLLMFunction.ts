@@ -22,8 +22,8 @@ const handleLLMFunction = async (
   userMessage: UserMessage
 ) => {
   switch (functionCall.name) {
-    case 'createBreakdown':
-      return createBreakdown(textResponse, functionCall, ddb, userMessage);
+    case 'displayBreakdown':
+      return displayBreakdown(textResponse, functionCall, ddb, userMessage);
     case 'getMeals':
       return await getMealsHandler(
         functionCall,
@@ -41,7 +41,7 @@ const handleLLMFunction = async (
   }
 };
 
-const createBreakdown = async (
+const displayBreakdown = async (
   textResponse: string,
   functionCall: ChatCompletionRequestMessageFunctionCall,
   ddb: DynamoDBFacade,

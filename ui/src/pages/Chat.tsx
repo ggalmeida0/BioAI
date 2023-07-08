@@ -4,7 +4,6 @@ import {
   Button,
   IconButton,
   Snackbar,
-  Text,
   TextInput,
 } from 'react-native-paper';
 import { StyleSheet, Modal, View, ScrollView } from 'react-native';
@@ -139,44 +138,22 @@ const Chat = () => {
       </Snackbar>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.chatContainer}>
-          {chat.map((message, index) => {
-            if (message.role === User) {
-              return (
-                <View key={index}>
-                  {sendingChat ? (
-                    <ActivityIndicator />
-                  ) : (
-                    <ChatBubble role={message.role} message={message} />
-                  )}
-                </View>
-              );
-            } else if (
-              message.role === Assistant &&
-              message.meal === undefined
-            ) {
-              return (
-                <View key={index}>
-                  {sendingChat ? (
-                    <ActivityIndicator />
-                  ) : (
-                    <ChatBubble role={message.role} message={message} />
-                  )}
-                </View>
-              );
-            } else if (message.role === Assistant && message.meal) {
-              return (
-                <View key={index}>
-                  <ChatBubble role={message.role} message={message} />
-                  <MealCard
-                    meal={message.meal}
-                    onSave={(meal: Meal) => saveMeal(meal)}
-                  />
-                </View>
-              );
-            } else {
-              return null;
-            }
-          })}
+          {chat.map((message, index) => (
+            <View key={index}>
+              <ChatBubble role={message.role} message={message} />
+              {message.meal && (
+                <MealCard
+                  meal={message.meal}
+                  onSave={(meal: Meal) => saveMeal(meal)}
+                />
+              )}
+            </View>
+          ))}
+          {(sendingChat || savingMeal) && (
+            <View style={styles.centerLoadingContainer}>
+              <ActivityIndicator />
+            </View>
+          )}
         </ScrollView>
         <View style={styles.inputContainer}>
           <View style={styles.inputRow}>

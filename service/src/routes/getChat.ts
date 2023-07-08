@@ -8,10 +8,11 @@ const getChat = async (
   userId: string
 ): Promise<APIGatewayProxyResultV2> => {
   try {
-    const { ddb } = dependencies;
+    const { ddb, openAI } = dependencies;
     const getChatInput: GetChatInput = {
       userId,
       ddb,
+      openAI,
     };
     const result = await serviceAPI.getChat(getChatInput);
 

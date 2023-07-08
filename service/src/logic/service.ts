@@ -1,5 +1,4 @@
-import { DynamoDB } from 'aws-sdk';
-import DynamoDBFacade from '../clients/DynamoDBFacade';
+import DynamoDBFacade, { ChatSession } from '../clients/DynamoDBFacade';
 import OpenAI from '../clients/OpenAI';
 import { AssistantMessage } from '../types/messages';
 import { Meal } from '../types/meals';
@@ -18,6 +17,7 @@ export type SendChatInput = {
 export type GetChatInput = {
   userId: string;
   ddb: DynamoDBFacade;
+  openAI: OpenAI;
 };
 
 export type SaveMealInput = {
@@ -33,9 +33,7 @@ export type GetFrequentMealsInput = {
 };
 
 type BioServiceAPI = {
-  getChat: (
-    input: GetChatInput
-  ) => Promise<DynamoDB.DocumentClient.ItemList | undefined>;
+  getChat: (input: GetChatInput) => Promise<ChatSession[] | undefined>;
   sendChat: (input: SendChatInput) => Promise<AssistantMessage>;
   saveMeal: (input: SaveMealInput) => Promise<AssistantMessage>;
   getFrequentMeals: (input: GetFrequentMealsInput) => Promise<Meal[]>;

@@ -12,9 +12,6 @@ export const SYSTEM_MESSAGE: SystemMessage = new SystemMessage(`
   You will then store this information for the user to reference later.
 `);
 
-export const INITIAL_GREETING =
-  'Hello, my name is Bio and I am your nutrition assistant. I can help you by breaking down the macro-nutrients, micro-nutrients, and calories in the foods you eat. With my help, you can easily track your food intake and maintain a healthy, balanced diet to achieve your health and fitness goals.';
-
 class OpenAI {
   private client: OpenAIApi;
   private model: string;
@@ -26,8 +23,8 @@ class OpenAI {
     const today = DateTime.local().toFormat('yyyy-MM-dd');
     this.functions = [
       {
-        name: 'createBreakdown',
-        description: `Creates a nutritional breakdown for a meal`,
+        name: 'displayBreakdown',
+        description: `Displays a nutritional breakdown for a meal`,
         parameters: {
           $schema: 'http://json-schema.org/draft-07/schema#',
           type: 'object',

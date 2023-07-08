@@ -1,6 +1,5 @@
 import { DynamoDB } from 'aws-sdk';
 import { DateTime } from 'luxon';
-import { INITIAL_GREETING } from './OpenAI';
 import { Message } from '../types/messages';
 import { Meal } from '../types/meals';
 
@@ -28,15 +27,17 @@ class DynamoDBFacade {
     this.table = 'UserSessions';
   }
 
-  async getMessages(): Promise<ChatSession[]> {
+  async getMessages(date?: number): Promise<ChatSession[]> {
     console.log(this.table);
     const { Items } = await this.client
       .query({
         TableName: this.table,
-        KeyConditionExpression: 'userId = :userId and #date = :date',
+        KeyConditionExpression: `userId = :userId and ${
+          date ? '#date = :date' : '#date <= :date'
+        }`,
         ExpressionAttributeValues: {
           ':userId': this.userId,
-          ':date': this.today,
+          ':date': date ?? this.today,
         },
         ExpressionAttributeNames: {
           '#date': 'date',
@@ -44,17 +45,7 @@ class DynamoDBFacade {
       })
       .promise();
 
-    const messages: ChatSession[] =
-      Items?.length === 0
-        ? [
-            {
-              date: new Date().toISOString().split('T')[0],
-              messages: [{ content: INITIAL_GREETING, role: 'assistant' }],
-            },
-          ]
-        : (Items as ChatSession[]);
-
-    return messages;
+    return Items as ChatSession[];
   }
 
   async addMessages(messages: Message[]): Promise<void> {
