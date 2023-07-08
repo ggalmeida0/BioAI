@@ -133,6 +133,7 @@ class DynamoDBFacade {
   }
 
   async getMealsForDates(dates: number[]): Promise<DatedMeal[]> {
+    console.log('Performing getMealsForDates with input:', dates);
     const ddbResult = await this.client
       .batchGet({
         RequestItems: {

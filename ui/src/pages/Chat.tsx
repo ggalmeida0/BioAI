@@ -1,5 +1,12 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
-import { ActivityIndicator, Button, IconButton, Snackbar, Text, TextInput } from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Button,
+  IconButton,
+  Snackbar,
+  Text,
+  TextInput,
+} from 'react-native-paper';
 import { StyleSheet, Modal, View, ScrollView } from 'react-native';
 import useChat, { Meal, Message } from '../hooks/useChat';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
@@ -20,14 +27,27 @@ const Chat = () => {
 
   const {
     messagesContext: { data: savedChatMessages, isError: getChatError },
-    senderContext: { mutate: sendChat, isLoading: sendingChat, isError: sendChatError },
+    senderContext: {
+      mutate: sendChat,
+      isLoading: sendingChat,
+      isError: sendChatError,
+    },
   } = useChat({
-    onSendSuccess: (data: Message) => setChat((prevChat) => [...prevChat, data]),
+    onSendSuccess: (data: Message) =>
+      setChat((prevChat) => [...prevChat, data]),
   });
 
   const {
-    saveMealMutation: { mutate: saveMeal, isLoading: savingMeal, isError: saveMealError },
-    getFrequentMealsQuery: { data: frequentMeals, isLoading: isLoadingFrequentMeals, isError: getFrequentMealsError },
+    saveMealMutation: {
+      mutate: saveMeal,
+      isLoading: savingMeal,
+      isError: saveMealError,
+    },
+    getFrequentMealsQuery: {
+      data: frequentMeals,
+      isLoading: isLoadingFrequentMeals,
+      isError: getFrequentMealsError,
+    },
   } = useMeals({
     enableGetFrequentMeals: modalVisible,
     onSaveSuccess: (newChat: Message) => {
@@ -38,13 +58,20 @@ const Chat = () => {
 
   useEffect(() => {
     if (savedChatMessages) {
-      const messages = savedChatMessages.map((chatMessage) => chatMessage.messages).flat();
+      const messages = savedChatMessages
+        .map((chatMessage) => chatMessage.messages)
+        .flat();
       setChat(messages);
     }
   }, [savedChatMessages]);
 
   useEffect(() => {
-    if (getChatError || sendChatError || saveMealError || getFrequentMealsError) {
+    if (
+      getChatError ||
+      sendChatError ||
+      saveMealError ||
+      getFrequentMealsError
+    ) {
       setChat((prevChat) => [
         ...prevChat,
         {
@@ -59,34 +86,11 @@ const Chat = () => {
   }, [getChatError, sendChatError, saveMealError, getFrequentMealsError]);
 
   const handleSend = () => {
-    const newMessage: Message = { content: input, role: User, isLoading: false };
+    const newMessage: Message = { content: input, role: User };
     setChat((prevChat) => [...prevChat, newMessage]);
     setInput('');
     sendChat(input);
   };
-
-  const bioLastMessage = useMemo(
-    () =>
-      chat.reduce<Message>(
-        (acc, curr) => (curr.role === Assistant ? curr : acc),
-        {
-          content: '',
-          role: Assistant,
-          isLoading: false,
-        }
-      ),
-    [chat]
-  );
-
-  const userLastMessage = useMemo(
-    () =>
-      chat.reduce<Message>((acc, curr) => (curr.role === User ? curr : acc), {
-        content: '',
-        role: User,
-        isLoading: false,
-      }),
-    [chat]
-  );
 
   return (
     <>
@@ -99,7 +103,9 @@ const Chat = () => {
       >
         <View style={styles.modalHeader}>
           <IconButton
-            icon={() => <AntDesign name="closecircle" size={24} color="black" />}
+            icon={() => (
+              <AntDesign name="closecircle" size={24} color="black" />
+            )}
             onPress={() => setModalVisible(false)}
           />
         </View>
@@ -119,10 +125,16 @@ const Chat = () => {
           )}
         </ScrollView>
       </Modal>
-      <Snackbar visible={snackbarVisible} onDismiss={() => setSnackbarVisible(false)}>
+      <Snackbar
+        visible={snackbarVisible}
+        onDismiss={() => setSnackbarVisible(false)}
+      >
         Meal saved!
       </Snackbar>
-      <Snackbar visible={errorOccurred} onDismiss={() => setErrorOccurred(false)}>
+      <Snackbar
+        visible={errorOccurred}
+        onDismiss={() => setErrorOccurred(false)}
+      >
         Error occurred
       </Snackbar>
       <View style={styles.container}>
@@ -131,29 +143,34 @@ const Chat = () => {
             if (message.role === User) {
               return (
                 <View key={index}>
-                  {message.isLoading ? (
+                  {sendingChat ? (
                     <ActivityIndicator />
                   ) : (
                     <ChatBubble role={message.role} message={message} />
                   )}
                 </View>
               );
-             } else if(message.role === Assistant && message.meal === undefined) {
+            } else if (
+              message.role === Assistant &&
+              message.meal === undefined
+            ) {
               return (
                 <View key={index}>
-                  {message.isLoading ? (
+                  {sendingChat ? (
                     <ActivityIndicator />
                   ) : (
                     <ChatBubble role={message.role} message={message} />
                   )}
                 </View>
               );
-             }
-            else if (message.role === Assistant && message.meal) {
+            } else if (message.role === Assistant && message.meal) {
               return (
                 <View key={index}>
                   <ChatBubble role={message.role} message={message} />
-                  <MealCard meal={message.meal} onSave={(meal: Meal) => saveMeal(meal)} />
+                  <MealCard
+                    meal={message.meal}
+                    onSave={(meal: Meal) => saveMeal(meal)}
+                  />
                 </View>
               );
             } else {
@@ -176,7 +193,9 @@ const Chat = () => {
             />
             <IconButton
               mode="outlined"
-              icon={() => <MaterialIcons name="history" size={24} color="black" />}
+              icon={() => (
+                <MaterialIcons name="history" size={24} color="black" />
+              )}
               onPress={() => setModalVisible(true)}
             />
           </View>
@@ -234,9 +253,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  input: { 
+  input: {
     width: Platform.OS === 'ios' ? '80%' : undefined,
-  }
+  },
 });
 
 export default Chat;

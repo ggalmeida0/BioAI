@@ -156,6 +156,7 @@ export class BioStack extends cdk.Stack {
       'http://localhost:19006/',
       'https://master.d3mqj86iwprlmp.amplifyapp.com/',
       'exp://192.168.1.243:19000',
+      'exp://192.168.1.114:19000',
     ];
     const client = userPool.addClient('BioAuthClient', {
       supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE],
