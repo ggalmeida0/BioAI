@@ -24,7 +24,7 @@ class OpenAI {
     this.functions = [
       {
         name: 'displayBreakdown',
-        description: `Displays a nutritional breakdown for a meal`,
+        description: `Displays a nutritional breakdown for a meal. A breakdown needs to be displayed before we can save the meal`,
         parameters: {
           $schema: 'http://json-schema.org/draft-07/schema#',
           type: 'object',

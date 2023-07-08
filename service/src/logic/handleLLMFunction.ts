@@ -87,7 +87,7 @@ const getMealsHandler = async (
       )}. Now respond appropriately to the user`
     ),
   ]);
-  const llmMessage = await openAI.sendChat(contextWithMeals);
+  const llmMessage = await openAI.sendChat(contextWithMeals, false);
   await ddb.addMessages([userMessage, llmMessage]);
   return llmMessage;
 };

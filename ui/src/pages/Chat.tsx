@@ -25,7 +25,11 @@ const Chat = () => {
   const [errorOccurred, setErrorOccurred] = useState<boolean>(false);
 
   const {
-    messagesContext: { data: savedChatMessages, isError: getChatError },
+    messagesContext: {
+      data: savedChatMessages,
+      isError: getChatError,
+      isLoading: gettingChat,
+    },
     senderContext: {
       mutate: sendChat,
       isLoading: sendingChat,
@@ -77,7 +81,6 @@ const Chat = () => {
           content:
             'Something went wrong while I was talking to the server. You can try asking me again or in a different way.',
           role: Assistant,
-          isLoading: false,
         },
       ]);
       setErrorOccurred(true);
@@ -138,6 +141,7 @@ const Chat = () => {
       </Snackbar>
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.chatContainer}>
+          {chat.length === 0 && gettingChat && <ActivityIndicator />}
           {chat.map((message, index) => (
             <View key={index}>
               <ChatBubble role={message.role} message={message} />
