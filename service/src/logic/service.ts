@@ -24,7 +24,6 @@ export type SaveMealInput = {
   userId: string;
   meal: Meal;
   ddb: DynamoDBFacade;
-  date?: string;
   openAI: OpenAI;
 };
 

@@ -70,13 +70,13 @@ class DynamoDBFacade {
       .promise();
   }
 
-  async addMeal(meal: Meal): Promise<void> {
+  async addMeal(meal: Meal, date?: number): Promise<void> {
     await this.client
       .update({
         TableName: this.table,
         Key: {
           userId: this.userId,
-          date: this.today,
+          date: date ?? this.today,
         },
         ExpressionAttributeValues: {
           ':meals': [meal],

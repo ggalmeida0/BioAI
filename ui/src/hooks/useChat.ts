@@ -16,6 +16,7 @@ type GetChatResponse = {
 export type Meal = {
   title: string;
   breakdown: NutritionBreakdown;
+  date?: string;
 };
 
 type NutritionBreakdown = {

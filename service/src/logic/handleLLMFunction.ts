@@ -47,16 +47,17 @@ const displayBreakdown = async (
   ddb: DynamoDBFacade,
   userMessage: UserMessage
 ) => {
-  const breakdown = eval(`(${functionCall.arguments!})`);
+  const meal = eval(`(${functionCall.arguments!})`);
 
   const evaluatedBreakdown = {
-    title: breakdown.title,
+    title: meal.title,
     breakdown: Object.fromEntries(
-      Object.entries(breakdown.breakdown).map((entry) => [
+      Object.entries(meal.breakdown).map((entry) => [
         entry[0],
         evaluate(String(entry[1])),
       ])
     ),
+    date: meal.date,
   } as Meal;
 
   const llmResponse = new AssistantMessage({

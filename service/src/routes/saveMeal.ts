@@ -8,13 +8,12 @@ const saveMeal = async (
   userId: string
 ): Promise<APIGatewayProxyResultV2> => {
   const { ddb, openAI } = dependencies;
-  const { meal, date } = JSON.parse(event.body || '');
+  const { meal } = JSON.parse(event.body || '');
 
   const input: SaveMealInput = {
     userId,
     meal,
     ddb,
-    date,
     openAI,
   };
 

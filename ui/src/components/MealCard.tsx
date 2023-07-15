@@ -1,4 +1,5 @@
 import { Button, Text } from 'react-native-paper';
+import { DateTime } from 'luxon';
 import { Meal } from '../hooks/useChat';
 import { View } from 'react-native';
 
@@ -12,6 +13,14 @@ const MealCard = ({ meal, onSave }: MealCardProps) => {
     <>
       <View>
         <Text variant="displayMedium">{meal.title}</Text>
+        {meal.date && (
+          <Text>
+            Date:
+            {DateTime.fromFormat(meal.date, 'yyyy-MM-dd').toLocaleString(
+              DateTime.DATE_MED
+            )}
+          </Text>
+        )}
         <Text>Calories: {meal.breakdown.calories}</Text>
         <Text>Carbs: {meal.breakdown.carbs}</Text>
         <Text>Fat: {meal.breakdown.fat}</Text>

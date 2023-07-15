@@ -24,7 +24,7 @@ class OpenAI {
     this.functions = [
       {
         name: 'displayBreakdown',
-        description: `Displays a nutritional breakdown for a meal. A breakdown needs to be displayed before we can save the meal`,
+        description: `Displays a nutritional breakdown for a meal. A breakdown needs to be displayed before we can save the meal. This information should be provided by Bio and not the user`,
         parameters: {
           $schema: 'http://json-schema.org/draft-07/schema#',
           type: 'object',
@@ -49,6 +49,11 @@ class OpenAI {
                 },
               },
               required: ['calories', 'carbs', 'fat', 'protein'],
+            },
+            date: {
+              type: 'string',
+              description:
+                "This represents the date this meal is suppose to be saved to. If the user doesn't provide this, leave it null. The date format is YYYY-MM-DD",
             },
           },
           required: ['title', 'breakdown'],

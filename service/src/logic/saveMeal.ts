@@ -4,18 +4,25 @@ import { SaveMealInput } from './service';
 import { AssistantMessage, SystemMessage } from '../types/messages';
 
 const saveMeal = async (input: SaveMealInput): Promise<AssistantMessage> => {
-  const { userId, meal, ddb, date, openAI } = input;
+  const { userId, meal, ddb, openAI } = input;
 
-  const validatedDate = validateDateFormat(date);
+  const validatedDate = validateDateFormat(meal.date);
   const formatedDate =
     validatedDate && DateTime.fromISO(validatedDate).toUTC().toSeconds();
 
-  console.log('User', userId, 'Saving meal: ', meal);
+  console.log(
+    'User',
+    userId,
+    'Saving meal: ',
+    meal,
+    'On timestamp: ',
+    formatedDate
+  );
 
   // @ts-ignore TS acting weird saying formatedDate could be "" when it cannot
   await ddb.addMeal(meal, formatedDate);
 
-  const LlmResponse = await openAI.sendChat(
+  const llmResponse = await openAI.sendChat(
     [
       new SystemMessage(
         `Inform the user you just saved the meal: ${JSON.stringify(meal)}`
@@ -23,8 +30,8 @@ const saveMeal = async (input: SaveMealInput): Promise<AssistantMessage> => {
     ],
     false
   );
-  await ddb.addMessages([LlmResponse]);
-  return LlmResponse;
+  await ddb.addMessages([llmResponse]);
+  return llmResponse;
 };
 
 export default saveMeal;
