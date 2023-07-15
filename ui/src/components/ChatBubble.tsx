@@ -10,14 +10,16 @@ import doc from 'rehype-document';
 import format from 'rehype-format';
 import html from 'rehype-stringify';
 import { Message } from '../hooks/useChat';
+import { isAnimatedValue } from 'react-native-paper/lib/typescript/src/styles/overlay';
 
 type ChatBubbleProps = {
   role: string;
   message: Message;
   isLoading?: boolean;
+  isAnimated: boolean;
 };
 
-const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
+const ChatBubble = ({ role, message, isLoading, isAnimated }: ChatBubbleProps) => {
   const [htmlResponse, setHtmlResponse] = useState('');
   const [displayResponse, setDisplayResponse] = useState('');
 
@@ -37,6 +39,11 @@ const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
   useEffect(() => {
     if (!message.content) {
       setDisplayResponse('');
+      return;
+    }
+
+    if (!isAnimated) {
+      setDisplayResponse(message.content)
       return;
     }
 
