@@ -10,16 +10,22 @@ import doc from 'rehype-document';
 import format from 'rehype-format';
 import html from 'rehype-stringify';
 import { Message } from '../hooks/useChat';
-import { isAnimatedValue } from 'react-native-paper/lib/typescript/src/styles/overlay';
 
 type ChatBubbleProps = {
   role: string;
   message: Message;
   isLoading?: boolean;
+  onContentChange?: () => void;
   isAnimated: boolean;
 };
 
-const ChatBubble = ({ role, message, isLoading, isAnimated }: ChatBubbleProps) => {
+const ChatBubble = ({
+  role,
+  message,
+  isLoading,
+  onContentChange,
+  isAnimated,
+}: ChatBubbleProps) => {
   const [htmlResponse, setHtmlResponse] = useState('');
   const [displayResponse, setDisplayResponse] = useState('');
 
@@ -34,6 +40,7 @@ const ChatBubble = ({ role, message, isLoading, isAnimated }: ChatBubbleProps) =
         if (err) throw err;
         setHtmlResponse(String(file));
       });
+    onContentChange?.();
   }, [displayResponse]);
 
   useEffect(() => {
@@ -41,12 +48,10 @@ const ChatBubble = ({ role, message, isLoading, isAnimated }: ChatBubbleProps) =
       setDisplayResponse('');
       return;
     }
-
     if (!isAnimated) {
-      setDisplayResponse(message.content)
+      setDisplayResponse(message.content);
       return;
     }
-
     let i = 0;
 
     const intervalId = setInterval(() => {
@@ -62,17 +67,24 @@ const ChatBubble = ({ role, message, isLoading, isAnimated }: ChatBubbleProps) =
     return () => clearInterval(intervalId);
   }, [message.content]);
 
-  const avatarImg = useMemo(() =>
-    role === 'assistant' ? (
-      <Avatar.Image source={require('../../assets/bio.png')} style={styles.bioAvatar} size={84} />
-    ) : (
-      <AntDesign name="user"  size={48}/>
-    ),
+  const avatarImg = useMemo(
+    () =>
+      role === 'assistant' ? (
+        <Avatar.Image
+          source={require('../../assets/bio.png')}
+          style={styles.bioAvatar}
+          size={84}
+        />
+      ) : (
+        <AntDesign name="user" size={48} />
+      ),
     [role]
   );
 
-  const bubbleStyle = role === 'assistant' ? styles.assistantBubble : styles.userBubble;
-  const textStyle = role === 'assistant' ? styles.assistantText : styles.userText;
+  const bubbleStyle =
+    role === 'assistant' ? styles.assistantBubble : styles.userBubble;
+  const textStyle =
+    role === 'assistant' ? styles.assistantText : styles.userText;
 
   return (
     <View style={[styles.message, bubbleStyle]}>
@@ -94,7 +106,7 @@ const ChatBubble = ({ role, message, isLoading, isAnimated }: ChatBubbleProps) =
 const styles = StyleSheet.create({
   message: {
     display: 'flex',
-    flexGrow:1,
+    flexGrow: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
     textAlign: 'center',
@@ -127,7 +139,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
 });
-
-
 
 export default ChatBubble;

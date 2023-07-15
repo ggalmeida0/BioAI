@@ -39,8 +39,7 @@ const Chat = () => {
   } = useChat({
     onSendSuccess: (data: Message) =>
       setChat((prevChat) => [...prevChat, data]),
-  },
-  );
+  });
 
   const {
     saveMealMutation: {
@@ -68,7 +67,6 @@ const Chat = () => {
         .flat();
       setChat(messages);
     }
-    setTimeout(callScroll,2500);
   }, [savedChatMessages]);
 
   useEffect(() => {
@@ -86,33 +84,24 @@ const Chat = () => {
           role: Assistant,
         },
       ]);
-      setTimeout(callScroll,2000);
       setErrorOccurred(true);
     }
   }, [getChatError, sendChatError, saveMealError, getFrequentMealsError]);
 
-  function callScroll(){
-    console.log("called")
-    scrollViewRef.current?.scrollToEnd({animated: true})
+  function scrollToEnd() {
+    scrollViewRef.current?.scrollToEnd({ animated: false });
   }
-
 
   const handleSend = () => {
     const newMessage: Message = { content: input, role: User };
     setChat((prevChat) => [...prevChat, newMessage]);
     setInput('');
     sendChat(input);
-    setTimeout(callScroll,500);
   };
-
-  useEffect(() => {
-    console.log("useEffect")
-    setTimeout(callScroll,250)
-  }, [chat])
 
   return (
     <>
-    <Modal
+      <Modal
         animationType="slide"
         visible={modalVisible}
         onRequestClose={() => {
@@ -155,23 +144,30 @@ const Chat = () => {
       >
         Error occurred
       </Snackbar>
-    <View style =  {styles.container}>
-        <ScrollView 
-        style = {styles.scrollViewColor}
-        contentContainerStyle={styles.scrollView}
-        ref = {scrollViewRef}
-        onContentSizeChange={() => 
-          setTimeout(callScroll,2500)
-        }
+      <View style={styles.container}>
+        <ScrollView
+          style={styles.scrollViewColor}
+          contentContainerStyle={styles.scrollView}
+          ref={scrollViewRef}
         >
           {chat.length === 0 && gettingChat && <ActivityIndicator />}
           {chat.map((message, index) => (
-            <View key={index} style= {styles.chatContainer}>
-              {!message.meal && (<ChatBubble role={message.role} message={message} />)}
-              {message.meal &&(
+            <View key={index} style={styles.chatContainer}>
+              {!message.meal && (
+                <ChatBubble
+                  role={message.role}
+                  message={message}
+                  onContentChange={
+                    index === chat.length - 1 ? scrollToEnd : undefined
+                  }
+                  isAnimated={index === chat.length - 1}
+                />
+              )}
+              {message.meal && (
                 <MealCard
                   meal={message.meal}
                   onSave={(meal: Meal) => saveMeal(meal)}
+                  onRender={scrollToEnd}
                 />
               )}
             </View>
@@ -182,7 +178,7 @@ const Chat = () => {
             </View>
           )}
         </ScrollView>
-        <View style={styles.fixedView}/>
+        <View style={styles.fixedView} />
         <View style={styles.inputContainer}>
           <View style={styles.inputRow}>
             <TextInput
@@ -219,14 +215,15 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     alignSelf: 'center',
-    padding: 5
+    padding: 5,
   },
   scrollViewColor: {
     width: '100%',
-    height: '100%'
+    height: '100%',
+    flex: 1,
   },
   container: {
-    backgroundColor: "#C8B6FF",
+    backgroundColor: '#C8B6FF',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -234,7 +231,7 @@ const styles = StyleSheet.create({
     width: width,
   },
   chatContainer: {
-    width: '100%'
+    width: '100%',
   },
   inputContainer: {
     gap: 3,
@@ -273,7 +270,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: Platform.OS === 'ios' ? '80%' : undefined,
-    backgroundColor: '#ECDFF5'
+    backgroundColor: '#ECDFF5',
   },
 });
 

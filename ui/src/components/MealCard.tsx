@@ -2,13 +2,19 @@ import { Button, Text } from 'react-native-paper';
 import { DateTime } from 'luxon';
 import { Meal } from '../hooks/useChat';
 import { View } from 'react-native';
+import { useEffect } from 'react';
 
 type MealCardProps = {
   meal: Meal;
   onSave?: (meal: Meal) => void;
+  onRender?: () => void;
 };
 
-const MealCard = ({ meal, onSave }: MealCardProps) => {
+const MealCard = ({ meal, onSave, onRender }: MealCardProps) => {
+  useEffect(() => onRender?.(), [meal]);
+  useEffect(() => {
+    setTimeout(() => onRender?.(), 500);
+  }, []);
   return (
     <>
       <View>
