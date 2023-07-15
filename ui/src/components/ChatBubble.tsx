@@ -59,7 +59,7 @@ const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
     role === 'assistant' ? (
       <Avatar.Image source={require('../../assets/bio.png')} style={styles.bioAvatar} size={84} />
     ) : (
-      <AntDesign name="user" size={24} color="black" />
+      <AntDesign name="user"  size={48}/>
     ),
     [role]
   );
@@ -87,18 +87,21 @@ const ChatBubble = ({ role, message, isLoading }: ChatBubbleProps) => {
 const styles = StyleSheet.create({
   message: {
     display: 'flex',
+    flexGrow:1,
+    justifyContent: 'flex-end',
     alignItems: 'center',
     textAlign: 'center',
     margin: 10,
     borderRadius: 8,
     padding: 8,
+    minWidth: 150,
   },
   userBubble: {
-    backgroundColor: '#333',
+    backgroundColor: '#7A9CD1',
     alignSelf: 'flex-end',
   },
   assistantBubble: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#A77BEA',
     alignSelf: 'flex-start',
   },
   userText: {
@@ -110,11 +113,14 @@ const styles = StyleSheet.create({
   avatar: {
     display: 'flex',
     flexDirection: 'row',
+    backgroundColor: 'transparent',
     gap: 10,
   },
   bioAvatar: {
     backgroundColor: 'transparent',
   },
 });
+
+
 
 export default ChatBubble;

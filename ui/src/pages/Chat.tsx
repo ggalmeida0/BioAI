@@ -6,7 +6,7 @@ import {
   Snackbar,
   TextInput,
 } from 'react-native-paper';
-import { StyleSheet, Modal, View, ScrollView } from 'react-native';
+import { StyleSheet, Modal, View, ScrollView, Dimensions } from 'react-native';
 import useChat, { Meal, Message } from '../hooks/useChat';
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import ChatBubble from '../components/ChatBubble';
@@ -23,6 +23,7 @@ const Chat = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [snackbarVisible, setSnackbarVisible] = useState<boolean>(false);
   const [errorOccurred, setErrorOccurred] = useState<boolean>(false);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const {
     messagesContext: {
@@ -38,7 +39,8 @@ const Chat = () => {
   } = useChat({
     onSendSuccess: (data: Message) =>
       setChat((prevChat) => [...prevChat, data]),
-  });
+  },
+  );
 
   const {
     saveMealMutation: {
@@ -66,6 +68,7 @@ const Chat = () => {
         .flat();
       setChat(messages);
     }
+    setTimeout(callScroll,2500);
   }, [savedChatMessages]);
 
   useEffect(() => {
@@ -83,20 +86,33 @@ const Chat = () => {
           role: Assistant,
         },
       ]);
+      setTimeout(callScroll,2000);
       setErrorOccurred(true);
     }
   }, [getChatError, sendChatError, saveMealError, getFrequentMealsError]);
+
+  function callScroll(){
+    console.log("called")
+    scrollViewRef.current?.scrollToEnd({animated: true})
+  }
+
 
   const handleSend = () => {
     const newMessage: Message = { content: input, role: User };
     setChat((prevChat) => [...prevChat, newMessage]);
     setInput('');
     sendChat(input);
+    setTimeout(callScroll,500);
   };
+
+  useEffect(() => {
+    console.log("useEffect")
+    setTimeout(callScroll,250)
+  }, [chat])
 
   return (
     <>
-      <Modal
+    <Modal
         animationType="slide"
         visible={modalVisible}
         onRequestClose={() => {
@@ -139,13 +155,20 @@ const Chat = () => {
       >
         Error occurred
       </Snackbar>
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.chatContainer}>
+    <View style =  {styles.container}>
+        <ScrollView 
+        style = {styles.scrollViewColor}
+        contentContainerStyle={styles.scrollView}
+        ref = {scrollViewRef}
+        onContentSizeChange={() => 
+          setTimeout(callScroll,2500)
+        }
+        >
           {chat.length === 0 && gettingChat && <ActivityIndicator />}
           {chat.map((message, index) => (
-            <View key={index}>
-              <ChatBubble role={message.role} message={message} />
-              {message.meal && (
+            <View key={index} style= {styles.chatContainer}>
+              {!message.meal && (<ChatBubble role={message.role} message={message} />)}
+              {message.meal &&(
                 <MealCard
                   meal={message.meal}
                   onSave={(meal: Meal) => saveMeal(meal)}
@@ -159,6 +182,7 @@ const Chat = () => {
             </View>
           )}
         </ScrollView>
+        <View style={styles.fixedView}/>
         <View style={styles.inputContainer}>
           <View style={styles.inputRow}>
             <TextInput
@@ -188,19 +212,29 @@ const Chat = () => {
     </>
   );
 };
-
+const { width, height } = Dimensions.get('window');
 const styles = StyleSheet.create({
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+  scrollView: {
+    flex: 1,
     width: '100%',
     height: '100%',
-    padding: 10,
+    alignSelf: 'center',
+    padding: 5
+  },
+  scrollViewColor: {
+    width: '100%',
+    height: '100%'
+  },
+  container: {
+    backgroundColor: "#C8B6FF",
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    height: height,
+    width: width,
   },
   chatContainer: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
+    width: '100%'
   },
   inputContainer: {
     gap: 3,
@@ -208,6 +242,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: Platform.OS === 'ios' ? '100%' : undefined,
+  },
+  fixedView: {
+    position: 'absolute',
   },
   inputRow: {
     display: 'flex',
@@ -229,13 +266,14 @@ const styles = StyleSheet.create({
   },
   centerLoadingContainer: {
     display: 'flex',
-    width: '100%',
-    height: '100%',
+    width: '20%',
+    height: '20%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   input: {
     width: Platform.OS === 'ios' ? '80%' : undefined,
+    backgroundColor: '#ECDFF5'
   },
 });
 
