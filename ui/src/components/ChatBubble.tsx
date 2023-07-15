@@ -40,8 +40,9 @@ const ChatBubble = ({
         if (err) throw err;
         setHtmlResponse(String(file));
       });
-    onContentChange?.();
   }, [displayResponse]);
+
+  useEffect(() => onContentChange?.(), [htmlResponse]);
 
   useEffect(() => {
     if (!message.content) {

@@ -88,6 +88,8 @@ const Chat = () => {
     }
   }, [getChatError, sendChatError, saveMealError, getFrequentMealsError]);
 
+  useEffect(() => scrollToEnd(), [savingMeal]);
+
   function scrollToEnd() {
     scrollViewRef.current?.scrollToEnd({ animated: false });
   }
@@ -157,9 +159,7 @@ const Chat = () => {
                 <ChatBubble
                   role={message.role}
                   message={message}
-                  onContentChange={
-                    index === chat.length - 1 ? scrollToEnd : undefined
-                  }
+                  onContentChange={scrollToEnd}
                   isAnimated={index === chat.length - 1}
                 />
               )}

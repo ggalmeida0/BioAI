@@ -11,10 +11,7 @@ type MealCardProps = {
 };
 
 const MealCard = ({ meal, onSave, onRender }: MealCardProps) => {
-  useEffect(() => onRender?.(), [meal]);
-  useEffect(() => {
-    setTimeout(() => onRender?.(), 500);
-  }, []);
+  useEffect(() => onRender?.(), []);
   return (
     <>
       <View>
