@@ -87,7 +87,7 @@ const getMealsHandler = async (
   timezone: string
 ) => {
   const dates = JSON.parse(functionCall.arguments!).dates.map((date: string) =>
-    DateTime.fromISO(date).setZone(timezone).toSeconds()
+    DateTime.fromISO(date, { zone: timezone }).toSeconds()
   );
 
   const datedMeals = await ddb.getMealsForDates(dates);
@@ -116,7 +116,7 @@ const deleteMeal = async (
   const { date: unformatedDate, mealTitle } = JSON.parse(
     functionCall.arguments!
   );
-  const date = DateTime.fromISO(unformatedDate).setZone(timezone).toSeconds();
+  const date = DateTime.fromISO(unformatedDate, { zone: timezone }).toSeconds();
   await ddb.deleteMeal(mealTitle, date);
   const llmMessage = await openAI.sendChat(
     [
