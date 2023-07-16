@@ -7,6 +7,7 @@ import {
 import { SERVICE_GET_CHAT, SERVICE_SEND_CHAT } from './queryKeys';
 import { API } from 'aws-amplify';
 import useAuth from './useAuth';
+import { DateTime } from 'luxon';
 
 type GetChatResponse = {
   date: string;
@@ -48,7 +49,12 @@ const useChat = ({ onSendSuccess }: useChatProps): ChatContext => {
   const messagesContext = useQuery({
     queryKey: [SERVICE_GET_CHAT],
     queryFn: () =>
-      API.get('BioAPI', '/getChat', { headers: { Authorization: idToken } }),
+      API.get('BioAPI', '/getChat', {
+        headers: { Authorization: idToken },
+        queryStringParameters: {
+          timezone: DateTime.local().zoneName,
+        },
+      }),
   });
   const senderContext = useMutation({
     mutationKey: [SERVICE_SEND_CHAT],

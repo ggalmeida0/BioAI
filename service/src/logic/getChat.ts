@@ -6,12 +6,12 @@ import { ChatSession } from '../clients/DynamoDBFacade';
 import { trimTokensToFitInContext } from '../utils/llmToken';
 
 const getChat = async (input: GetChatInput): Promise<ChatSession[]> => {
-  const { userId, ddb, openAI } = input;
+  const { userId, ddb, openAI, timezone } = input;
 
-  console.log('Getting chats for user ', userId);
+  console.log('Getting chats for user ', userId, 'in timezone ', timezone);
 
   const todaysMessages = await ddb.getMessages(
-    DateTime.local().startOf('day').toSeconds()
+    DateTime.local().setZone(timezone).startOf('day').toSeconds()
   );
 
   if (todaysMessages.length === 0) {

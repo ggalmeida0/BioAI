@@ -15,6 +15,7 @@ export type SendChatInput = {
 };
 
 export type GetChatInput = {
+  timezone: string;
   userId: string;
   ddb: DynamoDBFacade;
   openAI: OpenAI;
