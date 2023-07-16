@@ -9,7 +9,7 @@ const sendChat = async (
 ): Promise<APIGatewayProxyResultV2> => {
   const { openAI, ddb } = dependencies;
   const { message: userMessage } = JSON.parse(event.body || '');
-  const timezone = event.headers.Timezone ?? 'UTC';
+  const timezone = event.headers.Timezone ?? event.headers.timezone ?? 'UTC';
 
   const input: SendChatInput = {
     userId,

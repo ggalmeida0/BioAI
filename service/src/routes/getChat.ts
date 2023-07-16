@@ -8,7 +8,7 @@ const getChat = async (
   userId: string
 ): Promise<APIGatewayProxyResultV2> => {
   try {
-    const timezone = event.headers.Timezone ?? 'UTC';
+    const timezone = event.headers.Timezone ?? event.headers.timezone ?? 'UTC';
     const { ddb, openAI } = dependencies;
     const getChatInput: GetChatInput = {
       timezone,

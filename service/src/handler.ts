@@ -83,7 +83,7 @@ exports.handler = async (
 
     const userId = parseJwt(token)!.payload['cognito:username'];
 
-    const timezone = event.headers.Timezone ?? 'UTC';
+    const timezone = event.headers.Timezone ?? event.headers.timezone ?? 'UTC';
 
     const dependencies: Dependencies = {
       ddb: new DynamoDBFacade(userId, timezone),

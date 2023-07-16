@@ -9,7 +9,7 @@ const saveMeal = async (
 ): Promise<APIGatewayProxyResultV2> => {
   const { ddb, openAI } = dependencies;
   const { meal } = JSON.parse(event.body || '');
-  const timezone = event.headers.Timezone ?? 'UTC';
+  const timezone = event.headers.Timezone ?? event.headers.timezone ?? 'UTC';
 
   const input: SaveMealInput = {
     userId,
