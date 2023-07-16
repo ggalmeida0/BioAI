@@ -4,6 +4,7 @@ import MessagesUtils from '../utils/messagesUtils';
 import { SystemMessage } from '../types/messages';
 import { ChatSession } from '../clients/DynamoDBFacade';
 import { trimTokensToFitInContext } from '../utils/llmToken';
+import { SYSTEM_MESSAGE } from '../clients/OpenAI';
 
 const getChat = async (input: GetChatInput): Promise<ChatSession[]> => {
   const { userId, ddb, openAI, timezone } = input;
@@ -24,7 +25,7 @@ const getChat = async (input: GetChatInput): Promise<ChatSession[]> => {
         ...MessagesUtils.asOpenAIModel(allMessages),
         new SystemMessage(
           allMessages.length === 0
-            ? 'This is the users first time using the app. Give them a unique greeting talking about how you can help'
+            ? `This is the users first time using the app. Give them a unique greeting talking about how you can help. ${SYSTEM_MESSAGE.content}`
             : `Now it\'s ${DateTime.local()
                 .setZone(timezone)
                 .toFormat(

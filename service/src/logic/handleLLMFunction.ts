@@ -19,7 +19,8 @@ const handleLLMFunction = async (
   ddb: DynamoDBFacade,
   openAI: OpenAI,
   inputContext: Message[],
-  userMessage: UserMessage
+  userMessage: UserMessage,
+  timezone: string
 ) => {
   switch (functionCall.name) {
     case 'displayBreakdown':
@@ -30,10 +31,19 @@ const handleLLMFunction = async (
         ddb,
         openAI,
         inputContext,
-        userMessage
+        userMessage,
+        timezone
       );
     case 'deleteMeal':
-      return await deleteMeal(functionCall, ddb, openAI, userMessage);
+      return await deleteMeal(
+        functionCall,
+        ddb,
+        openAI,
+        userMessage,
+        timezone,
+        textResponse,
+        inputContext
+      );
     default:
       throw new NoOperationFoundError(
         `No LLM function exists with name ${functionCall.name}`
@@ -73,10 +83,11 @@ const getMealsHandler = async (
   ddb: DynamoDBFacade,
   openAI: OpenAI,
   inputContext: Message[],
-  userMessage: UserMessage
+  userMessage: UserMessage,
+  timezone: string
 ) => {
   const dates = JSON.parse(functionCall.arguments!).dates.map((date: string) =>
-    DateTime.fromISO(date).toUTC().toSeconds()
+    DateTime.fromISO(date).setZone(timezone).toSeconds()
   );
 
   const datedMeals = await ddb.getMealsForDates(dates);
@@ -97,21 +108,27 @@ const deleteMeal = async (
   functionCall: ChatCompletionRequestMessageFunctionCall,
   ddb: DynamoDBFacade,
   openAI: OpenAI,
-  userMessage: UserMessage
-) => {
+  userMessage: UserMessage,
+  timezone: string,
+  textResponse: string,
+  inputContext: Message[]
+): Promise<AssistantMessage> => {
   const { date: unformatedDate, mealTitle } = JSON.parse(
     functionCall.arguments!
   );
-  const date = DateTime.fromISO(unformatedDate).toUTC().toSeconds();
+  const date = DateTime.fromISO(unformatedDate).setZone(timezone).toSeconds();
   await ddb.deleteMeal(mealTitle, date);
-  const llmMessage = await openAI.sendChat([
-    userMessage,
-    new SystemMessage(
-      `Bio deleted meal ${mealTitle} on ${DateTime.fromSeconds(
-        date
-      ).toISODate()}. Now respond appropriately to the user`
-    ),
-  ]);
+  const llmMessage = await openAI.sendChat(
+    [
+      userMessage,
+      new SystemMessage(
+        `Bio deleted meal ${mealTitle} on ${DateTime.fromSeconds(date).toFormat(
+          'MMMM dd, yyyy'
+        )}. Now respond appropriately to the user. In the case an aditional function call is required tell the user you can only delete one meal at a time.`
+      ),
+    ],
+    false
+  );
   await ddb.addMessages([userMessage, llmMessage]);
   return llmMessage;
 };

@@ -9,12 +9,14 @@ const sendChat = async (
 ): Promise<APIGatewayProxyResultV2> => {
   const { openAI, ddb } = dependencies;
   const { message: userMessage } = JSON.parse(event.body || '');
+  const timezone = event.headers.Timezone ?? 'UTC';
 
   const input: SendChatInput = {
     userId,
     userMessage,
     ddb,
     openAI,
+    timezone,
   };
 
   const result = await serviceAPI.sendChat(input);

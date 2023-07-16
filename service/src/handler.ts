@@ -83,9 +83,11 @@ exports.handler = async (
 
     const userId = parseJwt(token)!.payload['cognito:username'];
 
+    const timezone = event.headers.Timezone ?? 'UTC';
+
     const dependencies: Dependencies = {
-      ddb: new DynamoDBFacade(userId),
-      openAI: await OpenAI.init(),
+      ddb: new DynamoDBFacade(userId, timezone),
+      openAI: await OpenAI.init(timezone),
     };
 
     const result = await route.action(event, dependencies, userId);

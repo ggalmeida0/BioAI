@@ -4,11 +4,12 @@ import { SaveMealInput } from './service';
 import { AssistantMessage, SystemMessage } from '../types/messages';
 
 const saveMeal = async (input: SaveMealInput): Promise<AssistantMessage> => {
-  const { userId, meal, ddb, openAI } = input;
+  const { userId, meal, ddb, openAI, timezone } = input;
 
   const validatedDate = validateDateFormat(meal.date);
   const formatedDate =
-    validatedDate && DateTime.fromISO(validatedDate).toUTC().toSeconds();
+    validatedDate &&
+    DateTime.fromISO(validatedDate, { zone: timezone }).toSeconds();
 
   console.log(
     'User',

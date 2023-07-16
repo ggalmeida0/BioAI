@@ -12,6 +12,7 @@ export type SendChatInput = {
   userMessage: string;
   ddb: DynamoDBFacade;
   openAI: OpenAI;
+  timezone: string;
 };
 
 export type GetChatInput = {
@@ -26,6 +27,7 @@ export type SaveMealInput = {
   meal: Meal;
   ddb: DynamoDBFacade;
   openAI: OpenAI;
+  timezone: string;
 };
 
 export type GetFrequentMealsInput = {

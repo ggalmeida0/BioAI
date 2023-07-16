@@ -1,7 +1,6 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { Dependencies } from '../handler';
 import serviceAPI, { GetChatInput } from '../logic/service';
-import { DateTime } from 'luxon';
 
 const getChat = async (
   event: APIGatewayProxyEventV2,
@@ -9,7 +8,7 @@ const getChat = async (
   userId: string
 ): Promise<APIGatewayProxyResultV2> => {
   try {
-    const timezone = event.queryStringParameters?.timezone ?? 'UTC';
+    const timezone = event.headers.Timezone ?? 'UTC';
     const { ddb, openAI } = dependencies;
     const getChatInput: GetChatInput = {
       timezone,

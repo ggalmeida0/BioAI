@@ -8,6 +8,7 @@ import useAuth from './useAuth';
 import { SERVICE_GET_FREQUENT_MEALS, SERVICE_SAVE_MEAL } from './queryKeys';
 import { API } from 'aws-amplify';
 import { Meal, Message } from './useChat';
+import { DateTime } from 'luxon';
 
 type useMealsOptions = {
   enableGetFrequentMeals: boolean;
@@ -27,11 +28,13 @@ const useMeals = ({
   const idToken =
     authContext.userAuthContext.data.signInUserSession.idToken.jwtToken;
 
+  const timezone = DateTime.local().zoneName;
+
   const saveMealMutation = useMutation({
     mutationKey: [SERVICE_SAVE_MEAL],
     mutationFn: async (meal: Meal) =>
       await API.post('BioAPI', '/saveMeal', {
-        headers: { Authorization: idToken },
+        headers: { Authorization: idToken, Timezone: timezone },
 
         body: { meal },
       }),
@@ -42,7 +45,7 @@ const useMeals = ({
     queryKey: [SERVICE_GET_FREQUENT_MEALS],
     queryFn: async () =>
       await API.get('BioAPI', '/getFrequentMeals', {
-        headers: { Authorization: idToken },
+        headers: { Authorization: idToken, Timezone: timezone },
       }),
     enabled: enableGetFrequentMeals,
   });

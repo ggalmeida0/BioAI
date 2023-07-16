@@ -44,15 +44,16 @@ type useChatProps = {
 
 const useChat = ({ onSendSuccess }: useChatProps): ChatContext => {
   const authContext = useAuth();
+  const timezone = DateTime.local().zoneName;
   const idToken =
     authContext.userAuthContext.data.signInUserSession.idToken.jwtToken;
   const messagesContext = useQuery({
     queryKey: [SERVICE_GET_CHAT],
     queryFn: () =>
       API.get('BioAPI', '/getChat', {
-        headers: { Authorization: idToken },
-        queryStringParameters: {
-          timezone: DateTime.local().zoneName,
+        headers: {
+          Authorization: idToken,
+          Timezone: timezone,
         },
       }),
   });
@@ -60,7 +61,10 @@ const useChat = ({ onSendSuccess }: useChatProps): ChatContext => {
     mutationKey: [SERVICE_SEND_CHAT],
     mutationFn: (message: string) =>
       API.post('BioAPI', '/sendChat', {
-        headers: { Authorization: idToken },
+        headers: {
+          Authorization: idToken,
+          Timezone: timezone,
+        },
         body: { message },
       }),
     onSuccess: (data) => onSendSuccess(data),

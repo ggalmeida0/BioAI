@@ -19,9 +19,11 @@ class DynamoDBFacade {
   private today: number;
   private userId: string;
   private table: string;
+  private timezone: string;
 
-  constructor(userId: string) {
-    this.today = DateTime.local().startOf('day').toSeconds();
+  constructor(userId: string, timezone: string) {
+    this.timezone = timezone;
+    this.today = DateTime.local().setZone(timezone).startOf('day').toSeconds();
     this.client = new DynamoDB.DocumentClient({ region: 'us-east-2' });
     this.userId = userId;
     this.table = 'UserSessions';
@@ -137,7 +139,9 @@ class DynamoDBFacade {
     const datedMeals = ddbResult
       .Responses![this.table].filter((session) => session.meals !== undefined)
       .map((session) => ({
-        date: DateTime.fromSeconds(session.date).toFormat('yyyy-MM-dd'),
+        date: DateTime.fromSeconds(session.date)
+          .setZone(this.timezone)
+          .toFormat('yyyy-MM-dd'),
         meals: session.meals,
       })) as DatedMeal[];
     return datedMeals;
@@ -149,7 +153,7 @@ class DynamoDBFacade {
     const deleteIndex = meals?.findIndex((meal) => meal.title === mealTitle);
     const updatedMeals = meals?.filter((_, index) => index !== deleteIndex);
 
-    console.log('updatedMeal', updatedMeals);
+    console.log('Updated meals:', updatedMeals, 'date:', date);
 
     await this.client
       .update({

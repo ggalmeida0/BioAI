@@ -10,15 +10,15 @@ import MessageUtils from '../utils/messagesUtils';
 import handleLLMFunction from './handleLLMFunction';
 import { DateTime } from 'luxon';
 
-const REINFORCEMENT_PROMPT = `In case of ambiguity, assume the user wants to breakdown a meal. Only call functions that are provided`;
+const REINFORCEMENT_PROMPT = `In case of ambiguity, assume the user wants to breakdown a meal. Only call functions that are provided.`;
 
 const sendChat = async (input: SendChatInput): Promise<AssistantMessage> => {
-  const { userId, userMessage: message, openAI, ddb } = input;
+  const { userId, userMessage: message, openAI, ddb, timezone } = input;
 
   console.log('User', userId, 'Sending message: ', message);
 
   const chatHistory = await ddb.getMessages(
-    DateTime.local().startOf('day').toSeconds()
+    DateTime.local().setZone(timezone).startOf('day').toSeconds()
   );
 
   const userMessage = new UserMessage(message);
@@ -44,7 +44,8 @@ const sendChat = async (input: SendChatInput): Promise<AssistantMessage> => {
       ddb,
       openAI,
       inputContext,
-      userMessage
+      userMessage,
+      timezone
     );
   }
 

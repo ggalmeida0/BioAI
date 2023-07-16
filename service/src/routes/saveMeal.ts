@@ -9,12 +9,14 @@ const saveMeal = async (
 ): Promise<APIGatewayProxyResultV2> => {
   const { ddb, openAI } = dependencies;
   const { meal } = JSON.parse(event.body || '');
+  const timezone = event.headers.Timezone ?? 'UTC';
 
   const input: SaveMealInput = {
     userId,
     meal,
     ddb,
     openAI,
+    timezone,
   };
 
   const result = await serviceAPI.saveMeal(input);

@@ -17,10 +17,10 @@ class OpenAI {
   private model: string;
   private functions: ChatCompletionFunctions[];
 
-  constructor(client: OpenAIApi) {
+  constructor(client: OpenAIApi, timezone: string) {
     this.model = 'gpt-3.5-turbo-0613';
     this.client = client;
-    const today = DateTime.local().toFormat('yyyy-MM-dd');
+    const today = DateTime.local().setZone(timezone).toFormat('yyyy-MM-dd');
     this.functions = [
       {
         name: 'displayBreakdown',
@@ -97,7 +97,7 @@ class OpenAI {
     ];
   }
 
-  static async init(): Promise<OpenAI> {
+  static async init(timezone: string): Promise<OpenAI> {
     const secretManagerClient = new SecretsManager({ region: 'us-east-2' });
     const credentialsSecret = await secretManagerClient
       .getSecretValue({ SecretId: 'openai' })
@@ -111,7 +111,7 @@ class OpenAI {
     });
 
     const client = new OpenAIApi(configuration);
-    return new OpenAI(client);
+    return new OpenAI(client, timezone);
   }
 
   async sendChat(
