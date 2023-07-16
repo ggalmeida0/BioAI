@@ -28,7 +28,7 @@ class DynamoDBFacade {
   }
 
   async getMessages(date?: number): Promise<ChatSession[]> {
-    console.log(this.table);
+    console.log(date);
     const { Items } = await this.client
       .query({
         TableName: this.table,
@@ -48,13 +48,13 @@ class DynamoDBFacade {
     return Items as ChatSession[];
   }
 
-  async addMessages(messages: Message[]): Promise<void> {
+  async addMessages(messages: Message[], date?: number): Promise<void> {
     await this.client
       .update({
         TableName: this.table,
         Key: {
           userId: this.userId,
-          date: this.today,
+          date: date ?? this.today,
         },
         ExpressionAttributeValues: {
           ':message': messages.map((message) => ({

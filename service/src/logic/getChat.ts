@@ -10,9 +10,12 @@ const getChat = async (input: GetChatInput): Promise<ChatSession[]> => {
 
   console.log('Getting chats for user ', userId, 'in timezone ', timezone);
 
-  const todaysMessages = await ddb.getMessages(
-    DateTime.local().setZone(timezone).startOf('day').toSeconds()
-  );
+  const todayInSecs = DateTime.local()
+    .setZone(timezone)
+    .startOf('day')
+    .toSeconds();
+
+  const todaysMessages = await ddb.getMessages(todayInSecs);
 
   if (todaysMessages.length === 0) {
     const allMessages = await ddb.getMessages();
@@ -22,16 +25,20 @@ const getChat = async (input: GetChatInput): Promise<ChatSession[]> => {
         new SystemMessage(
           allMessages.length === 0
             ? 'This is the users first time using the app. Give them a unique greeting talking about how you can help'
-            : `Now it\'s ${DateTime.local().toISO()}, a new day. Give the user a unique greeting based on the previous conversations`
+            : `Now it\'s ${DateTime.local()
+                .setZone(timezone)
+                .toFormat(
+                  'MMMM dd, yyyy, h:mm'
+                )}, a new day. Give the user a unique greeting based on the previous conversations`
         ),
       ]),
       false,
-      0.9
+      1
     );
-    await ddb.addMessages([llmMessage]);
+    await ddb.addMessages([llmMessage], todayInSecs);
     return [
       {
-        date: DateTime.local().toFormat('yyyy-MM-dd'),
+        date: DateTime.local().setZone(timezone).toFormat('yyyy-MM-dd'),
         messages: [llmMessage],
       } as ChatSession,
     ];
