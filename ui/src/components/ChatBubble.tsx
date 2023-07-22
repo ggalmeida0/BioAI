@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { ActivityIndicator, Avatar } from 'react-native-paper';
 import { AntDesign } from '@expo/vector-icons';
 import HTML from 'react-native-render-html';
@@ -10,6 +10,7 @@ import doc from 'rehype-document';
 import format from 'rehype-format';
 import html from 'rehype-stringify';
 import { Message } from '../hooks/useChat';
+import { DateTime } from 'luxon';
 
 type ChatBubbleProps = {
   role: string;
@@ -87,19 +88,26 @@ const ChatBubble = ({
   const textStyle =
     role === 'assistant' ? styles.assistantText : styles.userText;
 
+    const formattedTimestamp = message.timestamp
+    ? DateTime.fromISO(message.timestamp).toFormat('h:mm a')
+    : DateTime.local().toFormat('h:mm a');
+
   return (
     <View style={[styles.message, bubbleStyle]}>
       <View style={styles.avatar}>
         {avatarImg}
         {isLoading && <ActivityIndicator />}
       </View>
-      {!isLoading && (
-        <HTML
-          source={{
-            html: htmlResponse,
-          }}
-        />
-      )}
+      <View style={styles.messageContent}>
+        {!isLoading && (
+          <HTML
+            source={{
+              html: htmlResponse,
+            }}
+          />
+        )}
+        <Text style={[styles.timestamp, styles.boldText]}>{formattedTimestamp}</Text>
+      </View>
     </View>
   );
 };
@@ -139,6 +147,19 @@ const styles = StyleSheet.create({
   bioAvatar: {
     backgroundColor: 'transparent',
   },
+  messageContent: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timestamp: {
+    fontSize: 10,
+    color: 'black',
+    marginBottom: 4,
+  },
+  boldText: {
+    fontWeight: 'bold',
+  }
 });
 
 export default ChatBubble;

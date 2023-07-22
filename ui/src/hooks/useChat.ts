@@ -29,6 +29,7 @@ type NutritionBreakdown = {
 
 export type Message = {
   content?: string;
+  timestamp?: string;
   role: string;
   meal?: Meal;
 };
