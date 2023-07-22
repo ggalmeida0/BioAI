@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -46,7 +46,6 @@ const Chat = () => {
     getFrequentMealsQuery: {
       data: frequentMeals,
       isLoading: isLoadingFrequentMeals,
-      isError: getFrequentMealsError,
     },
   } = useMeals({
     enableGetFrequentMeals: modalVisible,
@@ -66,7 +65,7 @@ const Chat = () => {
   }, [savedChatMessages]);
 
   useEffect(() => {
-    if (sendChatError || saveMealError || getFrequentMealsError) {
+    if (sendChatError || saveMealError) {
       setChat((prevChat) => [
         ...prevChat,
         {
@@ -77,7 +76,7 @@ const Chat = () => {
       ]);
       setErrorOccurred(true);
     }
-  }, [sendChatError, saveMealError, getFrequentMealsError]);
+  }, [sendChatError, saveMealError]);
 
   useEffect(() => scrollToEnd(), [savingMeal]);
 
@@ -90,6 +89,11 @@ const Chat = () => {
     setChat((prevChat) => [...prevChat, newMessage]);
     setInput('');
     sendChat(input);
+  };
+
+  const handleSaveMeal = (meal: Meal) => {
+    setModalVisible(false);
+    saveMeal(meal);
   };
 
   return (
@@ -116,11 +120,7 @@ const Chat = () => {
             </View>
           ) : (
             frequentMeals?.map((meal) => (
-              <MealCard
-                key={meal.title}
-                meal={meal}
-                onSave={(meal: Meal) => saveMeal(meal)}
-              />
+              <MealCard key={meal.title} meal={meal} onSave={handleSaveMeal} />
             ))
           )}
         </ScrollView>
