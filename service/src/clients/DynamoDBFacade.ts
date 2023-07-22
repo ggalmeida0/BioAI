@@ -51,6 +51,7 @@ class DynamoDBFacade {
   }
 
   async addMessages(messages: Message[], date?: number): Promise<void> {
+    const timestamp = DateTime.local().setZone(this.timezone).toISO();
     await this.client
       .update({
         TableName: this.table,
@@ -63,6 +64,7 @@ class DynamoDBFacade {
             content: message.content,
             role: message.role,
             meal: message.meal,
+            timestamp: timestamp,
           })),
           ':empty_list': [],
         },
