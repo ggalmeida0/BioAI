@@ -114,15 +114,21 @@ const Chat = () => {
           />
         </View>
         <ScrollView>
-          {isLoadingFrequentMeals ? (
-            <View style={styles.centerLoadingContainer}>
-              <ActivityIndicator />
-            </View>
-          ) : (
-            frequentMeals?.map((meal) => (
-              <MealCard key={meal.title} meal={meal} onSave={handleSaveMeal} />
-            ))
-          )}
+          <View style={styles.modalContainer}>
+            {isLoadingFrequentMeals ? (
+              <View style={styles.centerLoadingContainer}>
+                <ActivityIndicator />
+              </View>
+            ) : (
+              frequentMeals?.map((meal) => (
+                <MealCard
+                  key={meal.title}
+                  meal={meal}
+                  onSave={handleSaveMeal}
+                />
+              ))
+            )}
+          </View>
         </ScrollView>
       </Modal>
       <Snackbar
@@ -262,6 +268,11 @@ const styles = StyleSheet.create({
   input: {
     width: Platform.OS === 'ios' ? '80%' : undefined,
     backgroundColor: '#ECDFF5',
+  },
+  modalContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
 });
 
