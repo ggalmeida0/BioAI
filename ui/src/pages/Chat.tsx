@@ -26,11 +26,7 @@ const Chat = () => {
   const scrollViewRef = useRef<ScrollView>(null);
 
   const {
-    messagesContext: {
-      data: savedChatMessages,
-      isError: getChatError,
-      isLoading: gettingChat,
-    },
+    messagesContext: { data: savedChatMessages, isLoading: gettingChat },
     senderContext: {
       mutate: sendChat,
       isLoading: sendingChat,
@@ -70,12 +66,7 @@ const Chat = () => {
   }, [savedChatMessages]);
 
   useEffect(() => {
-    if (
-      getChatError ||
-      sendChatError ||
-      saveMealError ||
-      getFrequentMealsError
-    ) {
+    if (sendChatError || saveMealError || getFrequentMealsError) {
       setChat((prevChat) => [
         ...prevChat,
         {
@@ -86,7 +77,7 @@ const Chat = () => {
       ]);
       setErrorOccurred(true);
     }
-  }, [getChatError, sendChatError, saveMealError, getFrequentMealsError]);
+  }, [sendChatError, saveMealError, getFrequentMealsError]);
 
   useEffect(() => scrollToEnd(), [savingMeal]);
 
