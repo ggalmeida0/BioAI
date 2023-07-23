@@ -88,7 +88,7 @@ const ChatBubble = ({
   const textStyle =
     role === 'assistant' ? styles.assistantText : styles.userText;
 
-    const formattedTimestamp = message.timestamp
+  const formattedTimestamp = message.timestamp
     ? DateTime.fromISO(message.timestamp).toFormat('h:mm a')
     : DateTime.local().toFormat('h:mm a');
 
@@ -106,7 +106,9 @@ const ChatBubble = ({
             }}
           />
         )}
-        <Text style={[styles.timestamp, styles.boldText]}>{formattedTimestamp}</Text>
+        <Text style={[styles.timestamp, styles.boldText]}>
+          {formattedTimestamp}
+        </Text>
       </View>
     </View>
   );
@@ -159,7 +161,7 @@ const styles = StyleSheet.create({
   },
   boldText: {
     fontWeight: 'bold',
-  }
+  },
 });
 
 export default ChatBubble;
