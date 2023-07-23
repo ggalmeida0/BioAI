@@ -165,9 +165,15 @@ const Chat = () => {
                   meal={message.meal}
                   onSave={(meal: Meal) => saveMeal(meal)}
                   onRender={scrollToEnd}
-                  onEdit={(meal: Meal) => {
-                    chat[index] = { ...chat[index], meal };
-                  }}
+                  onEdit={(updatedMeal: Meal) =>
+                    setChat(
+                      chat.map((message, i) =>
+                        i === index
+                          ? { ...message, meal: updatedMeal }
+                          : message
+                      )
+                    )
+                  }
                 />
               )}
             </View>

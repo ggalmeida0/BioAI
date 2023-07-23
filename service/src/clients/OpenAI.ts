@@ -3,6 +3,7 @@ import { Configuration, ChatCompletionFunctions, OpenAIApi } from 'openai';
 import { AssistantMessage, Message, SystemMessage } from '../types/messages';
 import DependencyError from '../errors/DependencyError';
 import { DateTime } from 'luxon';
+import { describe } from 'node:test';
 
 export const SYSTEM_MESSAGE: SystemMessage = new SystemMessage(`
   You are an assistant whose goal is to help the user to achieve their nutrition goals. Your name is Bio.
@@ -32,6 +33,10 @@ class OpenAI {
             title: {
               type: 'string',
             },
+            emoji: {
+              type: 'string',
+              describe: 'This is a one emoji representation of the meal',
+            },
             breakdown: {
               type: 'object',
               properties: {
@@ -56,7 +61,7 @@ class OpenAI {
                 "This represents the date this meal is suppose to be saved to. If the user doesn't provide this, leave it null. The date format is YYYY-MM-DD",
             },
           },
-          required: ['title', 'breakdown'],
+          required: ['title', 'breakdown', 'emoji'],
         },
       },
       {

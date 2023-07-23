@@ -57,7 +57,7 @@ const displayBreakdown = async (
   ddb: DynamoDBFacade,
   userMessage: UserMessage
 ) => {
-  const meal = eval(`(${functionCall.arguments!})`);
+  const meal = eval(`(${functionCall.arguments!})`) as Meal;
 
   const evaluatedBreakdown = {
     title: meal.title,
@@ -67,6 +67,7 @@ const displayBreakdown = async (
         evaluate(String(entry[1])),
       ])
     ),
+    emoji: meal.emoji,
     date: meal.date,
   } as Meal;
 
