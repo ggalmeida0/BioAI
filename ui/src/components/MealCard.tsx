@@ -27,44 +27,46 @@ const MealCard = ({ meal, onSave, onRender, onEdit }: MealCardProps) => {
   useEffect(() => onRender?.(), []);
   return (
     <>
-      <Provider>
-        <Portal>
-          <Modal
-            visible={editMode}
-            onDismiss={() => setEditMode(false)}
-            contentContainerStyle={styles.editModal}
-          >
-            <Card>
-              <View style={styles.modalHeader}>
-                <IconButton
-                  icon={() => (
-                    <AntDesign name="closecircle" size={24} color="black" />
-                  )}
-                  onPress={() => setEditMode(false)}
-                />
-              </View>
-              <Card.Content>
-                <TextInput
-                  label="Title"
-                  value={editModel.title}
-                  onChangeText={(text) =>
-                    setEditModel({ ...editModel, title: text })
-                  }
-                />
-                <Button
-                  onPress={() => {
-                    onEdit?.(editModel);
-                    setEditMode(false);
-                  }}
-                  style={styles.saveButton}
-                >
-                  Apply Changes
-                </Button>
-              </Card.Content>
-            </Card>
-          </Modal>
-        </Portal>
-      </Provider>
+      {editMode && (
+        <Provider>
+          <Portal>
+            <Modal
+              visible={editMode}
+              onDismiss={() => setEditMode(false)}
+              contentContainerStyle={styles.editModal}
+            >
+              <Card>
+                <View style={styles.modalHeader}>
+                  <IconButton
+                    icon={() => (
+                      <AntDesign name="closecircle" size={24} color="black" />
+                    )}
+                    onPress={() => setEditMode(false)}
+                  />
+                </View>
+                <Card.Content>
+                  <TextInput
+                    label="Title"
+                    value={editModel.title}
+                    onChangeText={(text) =>
+                      setEditModel({ ...editModel, title: text })
+                    }
+                  />
+                  <Button
+                    onPress={() => {
+                      onEdit?.(editModel);
+                      setEditMode(false);
+                    }}
+                    style={styles.saveButton}
+                  >
+                    Apply Changes
+                  </Button>
+                </Card.Content>
+              </Card>
+            </Modal>
+          </Portal>
+        </Provider>
+      )}
       <View style={styles.mainContainer}>
         <View>
           <View style={styles.titleRow}>
@@ -109,7 +111,7 @@ const MealCard = ({ meal, onSave, onRender, onEdit }: MealCardProps) => {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    width: '20rem',
+    width: '15rem',
     margin: '1rem',
     borderWidth: 1,
     borderColor: 'black',
