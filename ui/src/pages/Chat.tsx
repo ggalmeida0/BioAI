@@ -4,6 +4,7 @@ import {
   Button,
   IconButton,
   Snackbar,
+  Text,
   TextInput,
 } from 'react-native-paper';
 import { StyleSheet, Modal, View, ScrollView, Dimensions } from 'react-native';
@@ -119,6 +120,8 @@ const Chat = () => {
               <View style={styles.centerLoadingContainer}>
                 <ActivityIndicator />
               </View>
+            ) : !!frequentMeals && frequentMeals.length === 0 ? (
+              <Text>Your frequent meals will show up here 👨‍🍳</Text>
             ) : (
               frequentMeals?.map((meal) => (
                 <MealCard
@@ -205,10 +208,12 @@ const Chat = () => {
               )}
               onPress={() => setModalVisible(true)}
             />
+            <IconButton
+              mode="outlined"
+              icon={() => <MaterialIcons name="send" size={24} color="black" />}
+              onPress={handleSend}
+            />
           </View>
-          <Button mode="outlined" onPress={handleSend} style={styles.button}>
-            Send
-          </Button>
         </View>
       </View>
     </>
@@ -255,9 +260,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: Platform.OS === 'ios' ? '100%' : undefined,
-  },
-  button: {
-    width: '100%',
     marginBottom: 10,
   },
   modalHeader: {
