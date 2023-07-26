@@ -107,6 +107,9 @@ const Chat = () => {
         }}
       >
         <View style={styles.modalHeader}>
+          <Text style={{ marginLeft: 10 }} variant="headlineSmall">
+            Frequent Meals
+          </Text>
           <IconButton
             icon={() => (
               <AntDesign name="closecircle" size={24} color="black" />
@@ -266,10 +269,12 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     width: '100%',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginTop: 20,
   },
   centerLoadingContainer: {
+    marginTop: 20,
     display: 'flex',
     width: '20%',
     height: '20%',
