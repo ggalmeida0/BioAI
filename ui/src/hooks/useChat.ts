@@ -26,6 +26,7 @@ type NutritionBreakdown = {
   carbs: number;
   fat: number;
   protein: number;
+  portion: string;
 };
 
 export type Message = {

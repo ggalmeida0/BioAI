@@ -12,4 +12,5 @@ type NutritionBreakdown = {
   carbs: number | MathExpression;
   fat: number | MathExpression;
   protein: number | MathExpression;
+  portion: string;
 };

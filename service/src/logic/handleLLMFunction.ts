@@ -62,10 +62,9 @@ const displayBreakdown = async (
   const evaluatedBreakdown = {
     title: meal.title,
     breakdown: Object.fromEntries(
-      Object.entries(meal.breakdown).map((entry) => [
-        entry[0],
-        evaluate(String(entry[1])),
-      ])
+      Object.entries(meal.breakdown).map((entry) =>
+        entry[0] !== 'portion' ? [entry[0], evaluate(String(entry[1]))] : entry
+      )
     ),
     emoji: meal.emoji,
     date: meal.date,

@@ -94,6 +94,7 @@ const MealCard = ({ meal, onSave, onRender, onEdit }: MealCardProps) => {
             <Text>Carbs: {meal.breakdown.carbs}g</Text>
             <Text>Fat: {meal.breakdown.fat}g</Text>
             <Text>Protein: {meal.breakdown.protein}g</Text>
+            <Text>Portion: {meal.breakdown.portion}</Text>
           </View>
         </View>
         <Button

@@ -52,6 +52,11 @@ class OpenAI {
                 protein: {
                   type: 'number',
                 },
+                portion: {
+                  type: 'string',
+                  describe:
+                    'Portion of meal, could be weight, tsp, handful, cup, etc',
+                },
               },
               required: ['calories', 'carbs', 'fat', 'protein'],
             },
