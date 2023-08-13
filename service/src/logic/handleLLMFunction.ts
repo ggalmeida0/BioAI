@@ -94,7 +94,7 @@ const getMealsHandler = async (
   const contextWithMeals = trimTokensToFitInContext([
     ...inputContext,
     new SystemMessage(
-      `Nourish made a function call to getMeals and this is the result of it: ${JSON.stringify(
+      `${AI_NAME} made a function call to getMeals and this is the result of it: ${JSON.stringify(
         datedMeals
       )}. Now respond appropriately to the user`
     ),
@@ -122,7 +122,7 @@ const deleteMeal = async (
     [
       userMessage,
       new SystemMessage(
-        `Nourish deleted meal ${mealTitle} on ${DateTime.fromSeconds(
+        `${AI_NAME} deleted meal ${mealTitle} on ${DateTime.fromSeconds(
           date
         ).toFormat(
           'MMMM dd, yyyy'
