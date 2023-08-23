@@ -27,12 +27,13 @@ export default {
     },
     extra: {
       env: process.env.EXPO_ENV,
-      prodApiEndpoint: 'https://uudihltgbu4wqxm3nckfe7ylgi0kzccx.lambda-url.us-east-2.on.aws',
+      prodApiEndpoint:
+        'https://uudihltgbu4wqxm3nckfe7ylgi0kzccx.lambda-url.us-east-2.on.aws',
       webLocalApiEndpoint: 'http://localhost:3000',
-      prodAuthRedirectUri: 'https://master.d3mqj86iwprlmp.amplifyapp.com/',
+      prodAuthRedirectUri: 'https://app.windieting.ai',
       eas: {
-        projectId: "ea90ed3d-b94c-43c6-990a-d5e9decd48ff",
-      }
+        projectId: 'ea90ed3d-b94c-43c6-990a-d5e9decd48ff',
+      },
     },
   },
 };

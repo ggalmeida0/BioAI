@@ -154,7 +154,7 @@ export class BioStack extends cdk.Stack {
 
     const callbackUrls = [
       'http://localhost:19006/',
-      'https://master.d3mqj86iwprlmp.amplifyapp.com/',
+      'https://app.windieting.ai',
       'exp://192.168.1.243:19000',
       'exp://192.168.1.114:19000',
     ];
