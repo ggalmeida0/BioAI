@@ -94,7 +94,7 @@ const getMealsHandler = async (
   const contextWithMeals = trimTokensToFitInContext([
     ...inputContext,
     new SystemMessage(
-      `Bio made a function call to getMeals and this is the result of it: ${JSON.stringify(
+      `${AI_NAME} made a function call to getMeals and this is the result of it: ${JSON.stringify(
         datedMeals
       )}. Now respond appropriately to the user`
     ),
@@ -122,7 +122,9 @@ const deleteMeal = async (
     [
       userMessage,
       new SystemMessage(
-        `Bio deleted meal ${mealTitle} on ${DateTime.fromSeconds(date).toFormat(
+        `${AI_NAME} deleted meal ${mealTitle} on ${DateTime.fromSeconds(
+          date
+        ).toFormat(
           'MMMM dd, yyyy'
         )}. Now respond appropriately to the user. In the case an aditional function call is required tell the user you can only delete one meal at a time.`
       ),

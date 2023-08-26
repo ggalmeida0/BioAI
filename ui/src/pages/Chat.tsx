@@ -14,6 +14,7 @@ import ChatBubble from '../components/ChatBubble';
 import useMeals from '../hooks/useMeals';
 import MealCard from '../components/MealCard';
 import { Platform } from 'react-native';
+import { Auth } from 'aws-amplify';
 
 const User = 'user';
 const Assistant = 'assistant';
@@ -95,6 +96,15 @@ const Chat = () => {
   const handleSaveMeal = (meal: Meal) => {
     setModalVisible(false);
     saveMeal(meal);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await Auth.signOut();
+       // Navigate to AuthPage upon logout
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   return (
@@ -222,6 +232,11 @@ const Chat = () => {
           </View>
         </View>
       </View>
+      <View style={styles.logoutButtonContainer}>
+        <Button mode="outlined" onPress={handleLogout}>
+          Logout
+        </Button>
+      </View>
     </>
   );
 };
@@ -293,6 +308,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
+  },
+  logoutButtonContainer: {
+    marginTop: 10,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

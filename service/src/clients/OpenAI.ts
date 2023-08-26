@@ -6,7 +6,7 @@ import { DateTime } from 'luxon';
 import { describe } from 'node:test';
 
 export const SYSTEM_MESSAGE: SystemMessage = new SystemMessage(`
-  You are an assistant whose goal is to help the user to achieve their nutrition goals. Your name is Bio.
+  You are an assistant whose goal is to help the user to achieve their nutrition goals. Your name is ${AI_NAME}.
 
   You do that by asking the user what they have been eating an doing your best to break down the macro-nutrients, micro-nutrients and calories of the foods.
 
@@ -25,7 +25,7 @@ class OpenAI {
     this.functions = [
       {
         name: 'displayBreakdown',
-        description: `Displays a nutritional breakdown for a meal. A breakdown needs to be displayed before we can save the meal. This information should be provided by Bio and not the user`,
+        description: `Displays a nutritional breakdown for a meal. A breakdown needs to be displayed before we can save the meal. This information should be provided by ${AI_NAME} and not the user`,
         parameters: {
           $schema: 'http://json-schema.org/draft-07/schema#',
           type: 'object',
