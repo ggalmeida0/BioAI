@@ -1,3 +1,6 @@
+#Vercel
+.vercel
+
 # Service
 service/node_modules
 service/lambda
