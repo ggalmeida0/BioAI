@@ -39,6 +39,7 @@ Add these in a .env file inside the root of the repo.
 
 - `GOOGLE_CLIENT_ID`: Your Google OAuth client id (should be in the same page as the client secret). Will be used by Congnito to perform Google login.
 - `OAUTH_CALLBACK_URL`: A comma separated list of URLs. These are the acceptable URLs to be redirected after performing OAuth, include localhost URLs.
+- `OPENAI_ORG_ID`: The org id from your open ai account. Can be found in your [platform settings](https://platform.openai.com)
 
 ### Deploy cloud resources
 
@@ -56,7 +57,8 @@ Create a file `service/env/dev-env-vars.json` with the form:
 {
   "Parameters": {
     "USER_POOL_CLIENT_ID": "<Your user pool client id in AWS>",
-    "USER_POOL_ID": "<Your user pool id in AWS>"
+    "USER_POOL_ID": "<Your user pool id in AWS>",
+    "OPENAI_ORG_ID": "<Your OpenAI org id>"
   }
 }
 ```

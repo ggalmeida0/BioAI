@@ -116,7 +116,7 @@ class OpenAI {
       credentialsSecret.SecretString || ''
     ).OPENAI_API_KEY;
     const configuration = new Configuration({
-      organization: 'org-0nCbMxaROs5ezAvk6hU9LypS',
+      organization: process.env.OPENAI_ORG_ID,
       apiKey,
     });
 

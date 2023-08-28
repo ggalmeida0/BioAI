@@ -114,6 +114,7 @@ export class BioStack extends cdk.Stack {
       environment: {
         USER_POOL_ID: userPool.userPoolId,
         USER_POOL_CLIENT_ID: client.userPoolClientId,
+        OPENAI_ORG_ID: getFromEnvironment().openAiOrgId,
       },
       memorySize: 1024,
     });
