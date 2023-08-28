@@ -1,3 +1,7 @@
+const prodApiEndpoint = process.env.PROD_API_ENDPOINT;
+const prodAuthRedirectUri = process.env.UI_PROD_AUTH_REDIRECT_URI;
+const easProjectId = process.env.EAS_PROJECT_ID;
+
 export default {
   expo: {
     name: 'bio',
@@ -27,12 +31,11 @@ export default {
     },
     extra: {
       env: process.env.EXPO_ENV,
-      prodApiEndpoint:
-        'https://uudihltgbu4wqxm3nckfe7ylgi0kzccx.lambda-url.us-east-2.on.aws',
+      prodApiEndpoint,
       webLocalApiEndpoint: 'http://localhost:3000',
-      prodAuthRedirectUri: 'https://app.windieting.ai',
+      prodAuthRedirectUri,
       eas: {
-        projectId: 'ea90ed3d-b94c-43c6-990a-d5e9decd48ff',
+        projectId: easProjectId,
       },
     },
   },

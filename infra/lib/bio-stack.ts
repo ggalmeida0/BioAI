@@ -10,11 +10,16 @@ import { Function, FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
 import { HttpMethod } from 'aws-cdk-lib/aws-events';
 import { CorsHttpMethod, HttpApi } from '@aws-cdk/aws-apigatewayv2-alpha';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
+import { getFromEnvironment } from './environment';
+import { configDotenv } from 'dotenv';
 
 export class BioStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-    const isDevEnv = !!process.env.IS_DEV_ENV;
+
+    configDotenv({ path: '../..' });
+    const { isDevEnv } = getFromEnvironment();
+
     const { userPool, client } = this.setupAuth();
     this.setupDatabase();
     this.setupService(userPool, client, isDevEnv);
@@ -152,24 +157,20 @@ export class BioStack extends cdk.Stack {
       },
     });
 
-    const callbackUrls = [
-      'http://localhost:19006/',
-      'https://app.windieting.ai',
-      'exp://192.168.1.243:19000',
-      'exp://192.168.1.114:19000',
-    ];
+    const { oAuthCallbackUrls: callbackUrls, googleClientId: clientId } =
+      getFromEnvironment();
+
     const client = userPool.addClient('BioAuthClient', {
       supportedIdentityProviders: [UserPoolClientIdentityProvider.GOOGLE],
       oAuth: {
-        callbackUrls: callbackUrls,
+        callbackUrls,
       },
     });
     const provider = new cdk.aws_cognito.UserPoolIdentityProviderGoogle(
       this,
       'Google',
       {
-        clientId:
-          '49839729668-9ptmk3o21cq41ekv1e1shkeqivgjrcjl.apps.googleusercontent.com',
+        clientId,
         clientSecretValue: googleClientSecret,
         userPool: userPool,
         scopes: ['email', 'openid'],

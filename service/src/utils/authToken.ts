@@ -1,10 +1,6 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import UnauthorizedError from '../errors/UnauthorizedError';
 
-const authorizedIssuers = [
-  'https://cognito-idp.eu-west-1.amazonaws.com/eu-west-1_123456789',
-];
-
 const base64UrlDecode = (str: string) => {
   const preProcessedStr =
     str.replace(/-/g, '+').replace(/_/g, '/') +

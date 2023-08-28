@@ -1,11 +1,15 @@
 #Vercel
 .vercel
 
+# Env variables
+.env
+
 # Service
 service/node_modules
-service/lambda
+service/lambda/lambda.zip
 service/dist
 service/lambda.logs
+service/env/dev-env-vars.json
 
 # Infra
 infra/*.js
